@@ -1,0 +1,14 @@
+Conceptos que aparecen en el código
+%s: con una tupla aparte: nunca metas los datos directo en el texto del SQL. Así PyMySQL los limpia solo y evita la inyección SQL (que alguien escriba código malicioso en un campo del formulario).
+
+commit(): los cambios (INSERT, UPDATE, DELETE) no se guardan de verdad hasta que haces commit. Un SELECT no lo necesita.
+
+rollback(): si algo falla a la mitad, deshace lo que se alcanzó a hacer.
+
+finally: se ejecuta siempre, haya error o no. Ahí cerramos la conexión.
+
+with conexion.cursor() as cursor: el cursor es el que ejecuta las consultas. El with lo cierra solo al terminar.
+
+@staticmethod: un método que no necesita un objeto ya creado. Lo llamas directo desde la clase: Tutor.obtener_todos().
+
+fetchall(): trae todas las filas. Como usamos DictCursor, cada fila es un diccionario y las llaves (f["Nombre"]) tienen que ser idénticas a los nombres de tus columnas.
