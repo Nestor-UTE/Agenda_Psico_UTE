@@ -12,3 +12,6 @@ with conexion.cursor() as cursor: el cursor es el que ejecuta las consultas. El 
 @staticmethod: un método que no necesita un objeto ya creado. Lo llamas directo desde la clase: Tutor.obtener_todos().
 
 fetchall(): trae todas las filas. Como usamos DictCursor, cada fila es un diccionario y las llaves (f["Nombre"]) tienen que ser idénticas a los nombres de tus columnas.
+
+#Activar flask
+source venv/bin/activate
