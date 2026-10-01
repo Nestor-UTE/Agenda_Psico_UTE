@@ -49,3 +49,9 @@ class Cita:
             return []
         finally:
             conexion.close()
+
+if __name__ == "__main__":
+    nueva = Cita("F001", "2026-10-15 10:00:00", "Pendiente", "Primera cita", "2024001", 2, 1)
+    print("Guardado:", nueva.guardar())
+    for c in Cita.obtener_todos():
+        print(c.id_cita, c.num_folio, c.estatus)

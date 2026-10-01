@@ -8,7 +8,6 @@ class Seguimiento:
         self.resumen = resumen
 
     def guardar(self):
-        """Regresa o muestra una lista de los psicologas ."""
         conexion = obtener_conexion()
         if conexion is None:
             return False
@@ -36,7 +35,7 @@ class Seguimiento:
                 cursor.execute("SELECT * FROM seguimiento")
                 filas = cursor.fetchall()
             return [
-                Seguimiento(f["id_cita"], f["recomendacion"], f["resumen"])
+                Seguimiento(recomendacion=f["recomendacion"], resumen=f["resumen"], id_cita=f["id_cita"])
                 for f in filas
             ]
         except pymysql.MySQLError as error:
@@ -44,3 +43,9 @@ class Seguimiento:
             return []
         finally:
             conexion.close()
+
+if __name__ == "__main__":
+    nuevo = Seguimiento("Se recomienda seguimiento mensual", "Primera sesión, sin incidentes", id_cita=1)
+    print("Guardado:", nuevo.guardar())
+    for s in Seguimiento.obtener_todos():
+        print(s.id_cita, s.recomendacion)

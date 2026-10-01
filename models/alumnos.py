@@ -50,3 +50,9 @@ class Alumnos:
             return []
         finally:
             conexion.close()
+
+if __name__ == "__main__":
+    nuevo = Alumnos("2024001", "Alumno Prueba", "Pérez", "López", 2, "A", "TICs", id_tutor=2)
+    print("Guardado:", nuevo.guardar())
+    for a in Alumnos.obtener_todos():
+        print(a.matricula, a.nombre, a.id_tutor)

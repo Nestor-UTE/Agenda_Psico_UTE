@@ -55,7 +55,7 @@ ENGINE = InnoDB;
 -- Table `agenda_psico_ute`.`psicologa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`psicologa` (
-  `id_psicologa` INT NOT NULL,
+  `id_psicologa` INT(11) NOT NULL AUTO_INCREMENT;
   `nombre` VARCHAR(45) NOT NULL,
   `usuario` VARCHAR(45) NOT NULL,
   `contrasena` VARCHAR(45) NOT NULL,

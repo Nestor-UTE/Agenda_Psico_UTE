@@ -46,3 +46,9 @@ class Psicologa:
             return []
         finally:
             conexion.close()
+
+if __name__ == "__main__":
+    nueva = Psicologa("Psicóloga Prueba", "psico1", "clave123")
+    print("Guardado:", nueva.guardar())
+    for p in Psicologa.obtener_todos():
+        print(p.id_psicologa, p.nombre, p.usuario)

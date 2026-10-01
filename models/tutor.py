@@ -47,5 +47,11 @@ class Tutor:
         finally:
             conexion.close()
 
+if __name__ == "__main__":
+    nuevo = Tutor("Prueba", "8112345678", "prueba@ute.edu.mx")
+    print("Guardado:", nuevo.guardar())
+    for t in Tutor.obtener_todos():
+        print(t.id_tutor, t.nombre, t.correo)
+
 
 
