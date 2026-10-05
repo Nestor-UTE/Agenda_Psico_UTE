@@ -1,14 +1,54 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
-        <meta charset="UTF-8">
-    </head>
-    <body>
-        <nav>
-            <ul>
-                
-            </ul>
-        </nav>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión | Agenda Psico UTE</title>
+  <link rel="stylesheet" href="static/css/login.css">
+  <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
 
-    </body>
+  <main class="pantalla">
+
+    <div class="marca">
+        <img src="static/css/js/img/logo2_blanco.png" alt="" width="200px" height="150px">
+    </div>
+
+    <section class="tarjeta">
+      <h1>Iniciar sesión</h1>
+
+      <form action="/login" method="post">
+
+        <div class="roles">
+          <input type="radio" name="rol" id="rol-tutor" value="tutor" checked>
+          <label for="rol-tutor">Tutor</label>
+
+          <input type="radio" name="rol" id="rol-psicologa" value="psicologa">
+          <label for="rol-psicologa">Psicóloga</label>
+
+          <input type="radio" name="rol" id="rol-alumno" value="alumno">
+          <label for="rol-alumno">Alumno</label>
+        </div>
+
+        <div class="campo">
+          <input type="text" name="usuario" placeholder="Correo o usuario">
+        </div>
+
+        <div class="campo">
+          <input type="password" name="password" placeholder="Contraseña">
+        </div>
+
+        <button type="submit" class="btn-entrar">Entrar</button>
+      </form>
+
+      <div class="folio-box">
+        <p>¿Eres alumno? ¿Quieres revisar tu progreso? Escríbelo aquí</p>
+        <input type="text" name="folio" placeholder="folio">
+      </div>
+    </section>
+
+  </main>
+
+</body>
 </html>

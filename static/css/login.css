@@ -1,0 +1,54 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Mulish', sans-serif;
+  background: #ff8a00;
+}
+
+.pantalla {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.marca {
+  position: absolute;
+  top: 28px;
+  left: 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+}
+
+.marca-logo {
+    font-size: 2px;
+}
+
+.marca-texto {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.tarjeta {
+  width: 100%;
+  max-width: 330px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 36px 30px 28px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.tarjeta h1 {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 600;
+  color: #3b7f7c;
+  margin-bottom: 24px;
+}

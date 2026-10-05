@@ -1,0 +1,3 @@
+.marca: con position: absolute el logo "flota" arriba a la izquierda sin afectar el centrado de la tarjeta. 
+-display: flex y gap ponen la Ψ y el texto en fila con separación.
+.tarjeta: la caja blanca. max-width evita que se estire demasiado, border-radius redondea las esquinas y box-shadow le da esa sombra suave.

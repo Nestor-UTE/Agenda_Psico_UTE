@@ -1,0 +1,9 @@
+action="/login" es a dónde se envían los datos (la ruta de tu backend en Python).
+method="post" significa que los datos viajan ocultos en la petición (necesario para contraseñas; con get irían visibles en la URL)
+
+id: identificador único, para enlazarlo con su label.
+value: lo que se manda al servidor si está elegido ("tutor", "psicologa" o "alumno").
+checked: lo deja seleccionado por defecto (Tutor).
+
+<label for="rol-tutor">: el texto asociado a un input. El for debe coincidir con el id del input. Sirve para que al hacer clic en el 
+texto se marque la opción. Con CSS vamos a esconder los circulitos y convertir los labels en las pestañas azules.
