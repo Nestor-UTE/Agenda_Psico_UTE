@@ -52,3 +52,130 @@ body {
   color: #3b7f7c;
   margin-bottom: 24px;
 }
+
+.roles {
+  display: flex;
+  background: #eceef2;
+  border-radius: 999px;
+  padding: 4px;
+  margin-bottom: 18px;
+}
+
+.roles input {
+  display: none;
+}
+
+.roles label {
+  flex: 1;
+  text-align: center;
+  padding: 9px 0;
+  border-radius: 999px;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.roles input:checked + label {
+  background: #6a9fdc;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ---------- Campos de texto ---------- */
+.campo {
+  margin-bottom: 12px;
+}
+
+.campo input {
+  width: 100%;
+  padding: 12px 44px;  
+  border: 1px solid #c9d3e3;
+  border-radius: 999px;
+  background: #f3f5f9;
+  font-family: inherit;
+  font-size: 14px;
+  color: #333333;
+  outline: none;
+}
+.campo {
+  position: relative;
+}
+
+.campo > i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.ojo {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.ojo:focus {
+  outline: none;
+}
+
+.campo input::placeholder {
+  color: #9aa3b2;
+}
+
+.campo input:focus {
+  border-color: #6a9fdc;
+}
+
+/* ---------- Botón Entrar ---------- */
+.btn-entrar {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border: none;
+  border-radius: 999px;
+  background: #6a9fdc;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(106, 159, 220, 0.4);
+}
+
+.btn-entrar:hover {
+  background: #5890d3;
+}
+
+/* ---------- Folio del alumno ---------- */
+.folio-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.folio-box p {
+  flex: 1;
+  font-size: 12px;
+  line-height: 1.3;
+  color: #222222;
+}
+
+.folio-box input {
+  width: 82px;
+  padding: 9px 12px;
+  border: 1px solid #c9d3e3;
+  border-radius: 999px;
+  background: #f3f5f9;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}

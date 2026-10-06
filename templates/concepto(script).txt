@@ -1,0 +1,4 @@
+document.getElementById("password"): busca en la página el elemento con ese id. Por eso le pusimos id="password" al campo y id="btn-ojo" al botón.
+botonOjo.querySelector("i"): busca el icono <i> que está dentro del botón, para poder cambiarle el dibujo.
+addEventListener("click", ...): "cuando alguien haga clic en el botón, ejecuta esta función".
+El if: si el campo está en modo password (puntitos), lo cambia a text (se ve la contraseña) y pone el ojo abierto. Si no, lo regresa a password y pone el ojo tachado.
