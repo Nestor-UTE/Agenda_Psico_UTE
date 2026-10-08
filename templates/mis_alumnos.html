@@ -1,0 +1,88 @@
+{% extends "base_profesor.html" %}
+
+{% block titulo %}Mis alumnos{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Mis alumnos</h2>
+  <p class="subtitulo">Alumnos asignados y estado de su cita</p>
+
+  <div class="barra-buscar">
+    <i class="bi bi-search"></i>
+    <input type="search" id="buscador" placeholder="Buscar por alumno o matrícula...">
+  </div>
+
+  <section class="caja">
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Alumno</th>
+            <th>Matrícula</th>
+            <th>Grupo</th>
+            <th>Estado</th>
+            <th>Fecha y hora</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-datos">
+          <tr>
+            <td>Alumno de ejemplo 1</td>
+            <td>0000001</td>
+            <td>3A</td>
+            <td><span class="estado estado-pendiente">Agendada</span></td>
+            <td>15/10/2026 · 10:00</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Alumno de ejemplo 2</td>
+            <td>0000002</td>
+            <td>5B</td>
+            <td><span class="estado estado-reprogramada">Esperando fecha</span></td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Alumno de ejemplo 3</td>
+            <td>0000003</td>
+            <td>1C</td>
+            <td><span class="estado estado-realizada">Realizada</span></td>
+            <td>08/10/2026 · 09:00</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Alumno de ejemplo 4</td>
+            <td>0000004</td>
+            <td>2B</td>
+            <td><span class="estado estado-rechazada">Rechazada</span></td>
+            <td>—</td>
+            <td><a href="{{ url_for('solicitar_cita') }}" class="btn btn-gris">Volver a solicitar</a></td>
+          </tr>
+          <tr>
+            <td>Alumno de ejemplo 5</td>
+            <td>0000005</td>
+            <td>4A</td>
+            <td><span class="estado estado-sin">Sin cita</span></td>
+            <td>—</td>
+            <td><a href="{{ url_for('solicitar_cita') }}" class="btn btn-azul">Solicitar cita</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const buscador = document.getElementById("buscador");
+  const filas = document.querySelectorAll("#tabla-datos tr");
+
+  buscador.addEventListener("input", function () {
+    const texto = buscador.value.toLowerCase();
+    filas.forEach(function (fila) {
+      fila.style.display = fila.textContent.toLowerCase().includes(texto) ? "" : "none";
+    });
+  });
+</script>
+{% endblock %}

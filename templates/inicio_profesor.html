@@ -1,0 +1,30 @@
+{% extends "base_profesor.html" %}
+
+{% block titulo %}Inicio{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Inicio</h2>
+  <p class="subtitulo">Resumen de tus alumnos y citas</p>
+
+  <div class="resumen-grid">
+    <div class="resumen-item">
+      <i class="bi bi-calendar-event"></i>
+      <p class="numero">15/10/2026 · 10:00</p>
+      <p>Próxima cita (Alumno de ejemplo 1)</p>
+    </div>
+    <div class="resumen-item">
+      <i class="bi bi-hourglass-split"></i>
+      <p class="numero">2</p>
+      <p>Solicitudes esperando fecha</p>
+    </div>
+    <div class="resumen-item">
+      <i class="bi bi-chat-square-text"></i>
+      <p class="numero">1</p>
+      <p>Recomendaciones nuevas</p>
+    </div>
+  </div>
+
+  <a href="{{ url_for('solicitar_cita') }}" class="btn btn-azul">Solicitar una cita</a>
+</main>
+{% endblock %}

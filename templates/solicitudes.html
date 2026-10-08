@@ -1,0 +1,96 @@
+{% extends "base_psicologa.html" %}
+
+{% block titulo %}Solicitudes{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Solicitudes</h2>
+  <p class="subtitulo">Citas que los tutores han pedido y esperan fecha</p>
+
+  <section class="caja">
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Tutor</th>
+            <th>Alumno</th>
+            <th>Matrícula</th>
+            <th>Carrera</th>
+            <th>Grupo</th>
+            <th>Motivo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tutor de ejemplo</td>
+            <td>Alumno de ejemplo</td>
+            <td>0000000</td>
+            <td>TIC</td>
+            <td>3A</td>
+            <td>Motivo de ejemplo</td>
+            <td class="acciones">
+              <button type="button" class="btn btn-azul btn-agendar" data-alumno="Alumno de ejemplo">Agendar</button>
+              <button type="button" class="btn btn-gris">Rechazar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="modal-fondo" id="modal-agendar">
+  <div class="modal">
+    <h3>Agendar cita</h3>
+    <p class="modal-alumno">Alumno: <strong id="modal-nombre"></strong></p>
+
+    <form action="#" method="post">
+      <label for="fecha">Fecha</label>
+      <input type="date" id="fecha" name="fecha" required>
+
+      <label for="hora">Hora</label>
+      <input type="time" id="hora" name="hora" required>
+
+      <div class="modal-botones">
+        <button type="button" class="btn btn-gris" id="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn btn-azul">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+  const modal = document.getElementById("modal-agendar");
+  const nombreModal = document.getElementById("modal-nombre");
+  const campoFecha = document.getElementById("fecha");
+  const botonesAgendar = document.querySelectorAll(".btn-agendar");
+  const botonCancelar = document.getElementById("btn-cancelar");
+
+  // No dejar elegir fechas pasadas
+  campoFecha.min = new Date().toISOString().split("T")[0];
+
+  botonesAgendar.forEach(function (boton) {
+    boton.addEventListener("click", function () {
+      nombreModal.textContent = boton.dataset.alumno;
+      modal.classList.add("abierto");
+    });
+  });
+
+  botonCancelar.addEventListener("click", function () {
+    modal.classList.remove("abierto");
+  });
+
+  // Cerrar al hacer clic en el fondo oscuro
+  modal.addEventListener("click", function (evento) {
+    if (evento.target === modal) {
+      modal.classList.remove("abierto");
+    }
+  });
+</script>
+
+{% endblock %}

@@ -1,3 +1,24 @@
 .marca: con position: absolute el logo "flota" arriba a la izquierda sin afectar el centrado de la tarjeta. 
 -display: flex y gap ponen la Ψ y el texto en fila con separación.
+
 .tarjeta: la caja blanca. max-width evita que se estire demasiado, border-radius redondea las esquinas y box-shadow le da esa sombra suave.
+
+position: fixed en el encabezado y el menú: se quedan pegados arriba y a la izquierda aunque hagas scroll. Por eso el .contenedor tiene 
+padding-top: 70px (para que el contenido no quede escondido debajo del encabezado) y el .contenido tiene margin-left: 230px (para no quedar debajo del menú).
+
+transition: hace que el cambio de ancho se anime en vez de saltar.
+
+.menu.colapsado: todavía no hace nada solo; es la versión angosta del menú (70px, sin texto). El JavaScript del siguiente paso va a agregar y quitar esa clase al darle clic a la hamburguesa.
+
+.menu.colapsado + .contenido: el + significa "el .contenido que está justo después de un .menu.colapsado". Así el contenido se recorre solo cuando el menú se encoge.
+
+.tarjetas usa display: flex con flex-wrap, así las tres tarjetas se reparten el ancho y, si la pantalla es angosta, se acomodan una debajo de otra. Las tablas necesitan 
+border-collapse: collapse para que las líneas no se vean dobles.
+
+.tabla-scroll con overflow-x: auto hace que, si la tabla es más ancha que la pantalla (con 7 columnas puede pasar en celular), se desplace dentro de su caja en vez de romper la página.
+
+grid con auto-fit y minmax(340px, 1fr): las tarjetas se acomodan solas. En pantalla grande salen varias por fila y en celular una sola.
+
+<select>: es el menú desplegable para elegir entre Por definir, Sí y No. Ya trae su propio estilo en el CSS.
+
+flex-wrap: wrap en el pie: si el espacio no alcanza, el botón baja debajo del selector en vez de salirse.

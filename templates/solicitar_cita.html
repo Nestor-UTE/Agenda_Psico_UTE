@@ -1,0 +1,63 @@
+{% extends "base_profesor.html" %}
+
+{% block titulo %}Solicitar cita{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Solicitar cita</h2>
+  <p class="subtitulo">La psicóloga te asignará fecha y hora según su agenda</p>
+
+  <section class="caja">
+    <form action="#" method="post" class="form-cita">
+
+      <div class="ancho-completo">
+        <label for="alumno">Alumno</label>
+        <select id="alumno" name="alumno" required>
+          <option value="">Selecciona un alumno</option>
+          <option data-matricula="0000001" data-carrera="TIC" data-grupo="3A">Alumno de ejemplo 1</option>
+          <option data-matricula="0000002" data-carrera="TIC" data-grupo="5B">Alumno de ejemplo 2</option>
+          <option data-matricula="0000003" data-carrera="TIC" data-grupo="1C">Alumno de ejemplo 3</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="matricula">Matrícula</label>
+        <input type="text" id="matricula" name="matricula" readonly>
+      </div>
+
+      <div>
+        <label for="carrera">Carrera</label>
+        <input type="text" id="carrera" name="carrera" readonly>
+      </div>
+
+      <div>
+        <label for="grupo">Grupo</label>
+        <input type="text" id="grupo" name="grupo" readonly>
+      </div>
+
+      <div class="ancho-completo">
+        <label for="motivo">Motivo de la cita</label>
+        <textarea id="motivo" name="motivo" rows="4" placeholder="Describe brevemente por qué solicitas la cita" required></textarea>
+      </div>
+
+      <div class="ancho-completo">
+        <button type="submit" class="btn btn-azul">Enviar solicitud</button>
+      </div>
+
+    </form>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const selectAlumno = document.getElementById("alumno");
+
+  selectAlumno.addEventListener("change", function () {
+    const opcion = selectAlumno.options[selectAlumno.selectedIndex];
+    document.getElementById("matricula").value = opcion.dataset.matricula || "";
+    document.getElementById("carrera").value = opcion.dataset.carrera || "";
+    document.getElementById("grupo").value = opcion.dataset.grupo || "";
+  });
+</script>
+{% endblock %}

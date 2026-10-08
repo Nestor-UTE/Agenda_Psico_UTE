@@ -1,0 +1,60 @@
+{% extends "base_psicologa.html" %}
+
+{% block titulo %}Inicio{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Inicio</h2>
+  <p class="subtitulo">Resumen de hoy</p>
+
+  <section class="tarjetas">
+    <article class="resumen">
+      <i class="bi bi-calendar-check"></i>
+      <div>
+        <span class="numero">3</span>
+        <span class="etiqueta">Citas de hoy</span>
+      </div>
+    </article>
+
+    <article class="resumen">
+      <i class="bi bi-inbox"></i>
+      <div>
+        <span class="numero">5</span>
+        <span class="etiqueta">Solicitudes pendientes</span>
+      </div>
+    </article>
+
+    <article class="resumen">
+      <i class="bi bi-clipboard-pulse"></i>
+      <div>
+        <span class="numero">12</span>
+        <span class="etiqueta">Alumnos en seguimiento</span>
+      </div>
+    </article>
+  </section>
+
+  <section class="caja">
+    <h3>Próximas citas</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Alumno</th>
+          <th>Grupo</th>
+          <th>Motivo</th>
+          <th>Estatus</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>08/10/2026 10:00</td>
+          <td>Alumno de ejemplo</td>
+          <td>3A</td>
+          <td>Motivo de ejemplo</td>
+          <td><span class="estatus pendiente">Pendiente</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+{% endblock %}

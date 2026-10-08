@@ -1,0 +1,71 @@
+{% extends "base_profesor.html" %}
+
+{% block titulo %}Seguimiento{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Seguimiento</h2>
+  <p class="subtitulo">Recomendaciones de la psicóloga para tus alumnos atendidos</p>
+
+  <div class="barra-buscar">
+    <i class="bi bi-search"></i>
+    <input type="search" id="buscador" placeholder="Buscar por alumno o matrícula...">
+  </div>
+
+  <div class="lista-seguimiento" id="lista-seguimiento">
+
+    <article class="tarjeta-seg">
+      <header class="tarjeta-seg-cabecera">
+        <div>
+          <h3>Alumno de ejemplo 3</h3>
+          <p>0000003 · TIC · Grupo 1C</p>
+        </div>
+        <span class="estado estado-realizada">Última sesión: 08/10/2026</span>
+      </header>
+
+      <div class="tarjeta-seg-cuerpo">
+        <h4>Recomendación</h4>
+        <p>Recomendación de ejemplo para el alumno.</p>
+      </div>
+
+      <footer class="tarjeta-seg-pie">
+        <span class="estado estado-pendiente">Requiere más sesiones</span>
+      </footer>
+    </article>
+
+    <article class="tarjeta-seg">
+      <header class="tarjeta-seg-cabecera">
+        <div>
+          <h3>Alumno de ejemplo 4</h3>
+          <p>0000004 · TIC · Grupo 2B</p>
+        </div>
+        <span class="estado estado-realizada">Última sesión: 05/10/2026</span>
+      </header>
+
+      <div class="tarjeta-seg-cuerpo">
+        <h4>Recomendación</h4>
+        <p>Otra recomendación de ejemplo.</p>
+      </div>
+
+      <footer class="tarjeta-seg-pie">
+        <span class="estado estado-sin">No requiere más sesiones</span>
+      </footer>
+    </article>
+
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const buscador = document.getElementById("buscador");
+  const tarjetas = document.querySelectorAll("#lista-seguimiento .tarjeta-seg");
+
+  buscador.addEventListener("input", function () {
+    const texto = buscador.value.toLowerCase();
+    tarjetas.forEach(function (tarjeta) {
+      tarjeta.style.display = tarjeta.textContent.toLowerCase().includes(texto) ? "" : "none";
+    });
+  });
+</script>
+{% endblock %}

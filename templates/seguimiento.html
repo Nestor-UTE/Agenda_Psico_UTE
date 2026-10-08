@@ -1,0 +1,147 @@
+{% extends "base_psicologa.html" %}
+
+{% block titulo %}Seguimiento{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Seguimiento</h2>
+  <p class="subtitulo">Resumen y recomendaciones de los alumnos atendidos</p>
+
+  <div class="barra-buscar">
+    <i class="bi bi-search"></i>
+    <input type="search" id="buscador" placeholder="Buscar por alumno o matrícula...">
+  </div>
+
+  <div class="lista-seguimiento" id="lista-seguimiento">
+
+    <article class="tarjeta-seg">
+      <header class="tarjeta-seg-cabecera">
+        <div>
+          <h3>Alumno de ejemplo 3</h3>
+          <p>0000003 · TIC · Grupo 1C</p>
+        </div>
+        <span class="estado estado-realizada">Última sesión: 08/10/2026</span>
+      </header>
+
+      <div class="tarjeta-seg-cuerpo">
+        <div>
+          <h4>Resumen</h4>
+          <p>Resumen de ejemplo de lo que se habló en la sesión.</p>
+        </div>
+        <div>
+          <h4>Recomendación</h4>
+          <p>Recomendación de ejemplo para el alumno.</p>
+        </div>
+      </div>
+
+      <footer class="tarjeta-seg-pie">
+        <div class="campo-inline">
+          <label for="requiere-1">¿Requiere más sesiones?</label>
+          <select id="requiere-1">
+            <option>Por definir</option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-azul btn-otra-cita" data-alumno="Alumno de ejemplo 3">Agendar otra cita</button>
+      </footer>
+    </article>
+
+    <article class="tarjeta-seg">
+      <header class="tarjeta-seg-cabecera">
+        <div>
+          <h3>Alumno de ejemplo 4</h3>
+          <p>0000004 · TIC · Grupo 2B</p>
+        </div>
+        <span class="estado estado-realizada">Última sesión: 05/10/2026</span>
+      </header>
+
+      <div class="tarjeta-seg-cuerpo">
+        <div>
+          <h4>Resumen</h4>
+          <p>Otro resumen de ejemplo para ver cómo se acomodan varias tarjetas.</p>
+        </div>
+        <div>
+          <h4>Recomendación</h4>
+          <p>Otra recomendación de ejemplo.</p>
+        </div>
+      </div>
+
+      <footer class="tarjeta-seg-pie">
+        <div class="campo-inline">
+          <label for="requiere-2">¿Requiere más sesiones?</label>
+          <select id="requiere-2">
+            <option>Por definir</option>
+            <option>Sí</option>
+            <option>No</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-azul btn-otra-cita" data-alumno="Alumno de ejemplo 4">Agendar otra cita</button>
+      </footer>
+    </article>
+
+  </div>
+</main>
+
+<div class="modal-fondo" id="modal-otra-cita">
+  <div class="modal">
+    <h3>Agendar otra cita</h3>
+    <p class="modal-alumno">Alumno: <strong id="modal-nombre-otra"></strong></p>
+
+    <form action="#" method="post">
+      <label for="fecha-otra">Fecha</label>
+      <input type="date" id="fecha-otra" name="fecha" required>
+
+      <label for="hora-otra">Hora</label>
+      <input type="time" id="hora-otra" name="hora" required>
+
+      <div class="modal-botones">
+        <button type="button" class="btn btn-gris" id="btn-cancelar-otra">Cancelar</button>
+        <button type="submit" class="btn btn-azul">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  /* ---------- Buscador ---------- */
+  const buscador = document.getElementById("buscador");
+  const tarjetas = document.querySelectorAll("#lista-seguimiento .tarjeta-seg");
+
+  buscador.addEventListener("input", function () {
+    const texto = buscador.value.toLowerCase();
+    tarjetas.forEach(function (tarjeta) {
+      const coincide = tarjeta.textContent.toLowerCase().includes(texto);
+      tarjeta.style.display = coincide ? "" : "none";
+    });
+  });
+
+  /* ---------- Modal Agendar otra cita ---------- */
+  const modalOtra = document.getElementById("modal-otra-cita");
+  const nombreOtra = document.getElementById("modal-nombre-otra");
+  const campoFechaOtra = document.getElementById("fecha-otra");
+  const botonesOtra = document.querySelectorAll(".btn-otra-cita");
+  const cancelarOtra = document.getElementById("btn-cancelar-otra");
+
+  campoFechaOtra.min = new Date().toISOString().split("T")[0];
+
+  botonesOtra.forEach(function (boton) {
+    boton.addEventListener("click", function () {
+      nombreOtra.textContent = boton.dataset.alumno;
+      modalOtra.classList.add("abierto");
+    });
+  });
+
+  cancelarOtra.addEventListener("click", function () {
+    modalOtra.classList.remove("abierto");
+  });
+
+  modalOtra.addEventListener("click", function (evento) {
+    if (evento.target === modalOtra) {
+      modalOtra.classList.remove("abierto");
+    }
+  });
+</script>
+{% endblock %}

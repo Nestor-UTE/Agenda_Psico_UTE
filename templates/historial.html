@@ -1,0 +1,85 @@
+{% extends "base_psicologa.html" %}
+
+{% block titulo %}Historial{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Historial</h2>
+  <p class="subtitulo">Registro de todas las citas anteriores</p>
+
+  <div class="barra-buscar">
+    <i class="bi bi-search"></i>
+    <input type="search" id="buscador" placeholder="Buscar por alumno, matrícula, tutor o fecha...">
+  </div>
+
+  <section class="caja">
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Alumno</th>
+            <th>Matrícula</th>
+            <th>Grupo</th>
+            <th>Tutor</th>
+            <th>Resultado</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-datos">
+          <tr>
+            <td>08/10/2026</td>
+            <td>09:00</td>
+            <td>Alumno de ejemplo 3</td>
+            <td>0000003</td>
+            <td>1C</td>
+            <td>Tutor de ejemplo</td>
+            <td><span class="estado estado-realizada">Realizada</span></td>
+          </tr>
+          <tr>
+            <td>05/10/2026</td>
+            <td>11:00</td>
+            <td>Alumno de ejemplo 4</td>
+            <td>0000004</td>
+            <td>2B</td>
+            <td>Tutor de ejemplo</td>
+            <td><span class="estado estado-realizada">Realizada</span></td>
+          </tr>
+          <tr>
+            <td>02/10/2026</td>
+            <td>13:00</td>
+            <td>Alumno de ejemplo 5</td>
+            <td>0000005</td>
+            <td>4A</td>
+            <td>Tutor de ejemplo</td>
+            <td><span class="estado estado-reprogramada">Reprogramada</span></td>
+          </tr>
+          <tr>
+            <td>29/09/2026</td>
+            <td>10:30</td>
+            <td>Alumno de ejemplo 6</td>
+            <td>0000006</td>
+            <td>6C</td>
+            <td>Tutor de ejemplo</td>
+            <td><span class="estado estado-rechazada">Rechazada</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const buscador = document.getElementById("buscador");
+  const filas = document.querySelectorAll("#tabla-datos tr");
+
+  buscador.addEventListener("input", function () {
+    const texto = buscador.value.toLowerCase();
+    filas.forEach(function (fila) {
+      fila.style.display = fila.textContent.toLowerCase().includes(texto) ? "" : "none";
+    });
+  });
+</script>
+{% endblock %}

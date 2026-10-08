@@ -7,3 +7,19 @@ checked: lo deja seleccionado por defecto (Tutor).
 
 <label for="rol-tutor">: el texto asociado a un input. El for debe coincidir con el id del input. Sirve para que al hacer clic en el 
 texto se marque la opción. Con CSS vamos a esconder los circulitos y convertir los labels en las pestañas azules.
+
+<span>: lo usamos para el texto de cada opción, así luego podemos ocultarlo cuando el menú esté colapsado y que se vean solo los iconos.
+
+<article>: un bloque independiente y autocontenido, como cada tarjeta de resumen.
+
+<table>: la tabla. Dentro, <thead> es el encabezado, <tbody> el cuerpo, <tr> una fila, <th> una celda de título y <td> una celda de dato.
+
+{% extends "base_psicologa.html" %}: "esta página usa esa plantilla como esqueleto".
+
+
+{% block contenido %}...{% endblock %}: huecos. La base define el hueco y cada página lo llena con lo suyo.
+
+{{ url_for('static', filename='css/panel.css') }}: Flask arma la ruta del archivo por ti. Antes usábamos static/css/panel.css a mano, que se rompe 
+en cuanto una ruta tenga más de un nivel (como /psicologa/solicitudes). Con url_for funciona siempre.
+
+{{ 'activo' if pagina == 'inicio' }}: pone la clase activo (el azul) solo en la opción donde estás. Cada ruta de Python manda su pagina.

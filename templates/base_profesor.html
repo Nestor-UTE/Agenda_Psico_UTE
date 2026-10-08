@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titulo %}Panel Profesor{% endblock %} | Agenda Psico UTE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/panel.css') }}">
+</head>
+<body class="profesor">
+    
+  <header class="encabezado">
+    <h1>Panel Profesor</h1>
+    <a href="/logout" class="cerrar-sesion">
+      <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+    </a>
+  </header>
+
+  <nav class="barra-nav">
+    <a href="{{ url_for('panel_profesor') }}" class="{{ 'activo' if pagina == 'inicio' }}"><i class="bi bi-house"></i><span>Inicio</span></a>
+    <a href="{{ url_for('solicitar_cita') }}" class="{{ 'activo' if pagina == 'solicitar' }}"><i class="bi bi-calendar-plus"></i><span>Solicitar cita</span></a>
+    <a href="{{ url_for('mis_alumnos') }}" class="{{ 'activo' if pagina == 'alumnos' }}"><i class="bi bi-people"></i><span>Mis alumnos</span></a>
+    <a href="{{ url_for('seguimiento_profesor') }}" class="{{ 'activo' if pagina == 'seguimiento' }}"><i class="bi bi-clipboard-pulse"></i><span>Seguimiento</span></a>
+  </nav>
+
+  {% block contenido %}{% endblock %}
+
+{% block scripts %}
+{% endblock %}
+
+</body>
+</html>

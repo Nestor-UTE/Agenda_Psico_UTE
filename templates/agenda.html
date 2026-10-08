@@ -1,0 +1,179 @@
+{% extends "base_psicologa.html" %}
+
+{% block titulo %}Agenda / Cita{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+  <h2>Agenda / Cita</h2>
+  <p class="subtitulo">Citas ya agendadas con fecha y hora</p>
+
+  <div class="barra-buscar">
+    <i class="bi bi-search"></i>
+    <input type="search" id="buscador" placeholder="Buscar por alumno, matrícula, tutor o fecha...">
+  </div>
+
+  <section class="caja">
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Alumno</th>
+            <th>Matrícula</th>
+            <th>Grupo</th>
+            <th>Tutor</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-citas">
+          <tr>
+            <td>15/10/2026</td>
+            <td>10:00</td>
+            <td>Alumno de ejemplo 1</td>
+            <td>0000001</td>
+            <td>3A</td>
+            <td>Tutor de ejemplo</td>
+            <td><span class="estado estado-pendiente">Pendiente</span></td>
+            <td class="acciones">
+              <button type="button" class="btn btn-azul btn-realizada" data-alumno="Alumno de ejemplo 1">Realizada</button>
+              <button type="button" class="btn btn-gris btn-reprogramar" data-alumno="Alumno de ejemplo 1">Reprogramar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>16/10/2026</td>
+            <td>12:30</td>
+            <td>Alumno de ejemplo 2</td>
+            <td>0000002</td>
+            <td>5B</td>
+            <td>Tutor de ejemplo</td>
+            <td><span class="estado estado-pendiente">Pendiente</span></td>
+            <td class="acciones">
+              <button type="button" class="btn btn-azul btn-realizada" data-alumno="Alumno de ejemplo 2">Realizada</button>
+              <button type="button" class="btn btn-gris btn-reprogramar" data-alumno="Alumno de ejemplo 2">Reprogramar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>08/10/2026</td>
+            <td>09:00</td>
+            <td>Alumno de ejemplo 3</td>
+            <td>0000003</td>
+            <td>1C</td>
+            <td>Tutor de ejemplo</td>
+            <td><span class="estado estado-realizada">Realizada</span></td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="modal-fondo" id="modal-reprogramar">
+  <div class="modal">
+    <h3>Reprogramar cita</h3>
+    <p class="modal-alumno">Alumno: <strong id="modal-nombre-repro"></strong></p>
+
+    <form action="#" method="post">
+      <label for="fecha-repro">Nueva fecha</label>
+      <input type="date" id="fecha-repro" name="fecha" required>
+
+      <label for="hora-repro">Nueva hora</label>
+      <input type="time" id="hora-repro" name="hora" required>
+
+      <div class="modal-botones">
+        <button type="button" class="btn btn-gris" id="btn-cancelar-repro">Cancelar</button>
+        <button type="submit" class="btn btn-azul">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-fondo" id="modal-realizada">
+  <div class="modal modal-ancho">
+    <h3>Cita realizada</h3>
+    <p class="modal-alumno">Alumno: <strong id="modal-nombre-real"></strong></p>
+
+    <form action="#" method="post">
+      <label for="resumen">Resumen de la sesión</label>
+      <textarea id="resumen" name="resumen" rows="4" placeholder="¿Qué se habló en la sesión?" required></textarea>
+
+      <label for="recomendacion">Recomendación</label>
+      <textarea id="recomendacion" name="recomendacion" rows="3" placeholder="Sugerencias o acuerdos para el alumno" required></textarea>
+
+      <div class="modal-botones">
+        <button type="button" class="btn btn-gris" id="btn-cancelar-real">Cancelar</button>
+        <button type="submit" class="btn btn-azul">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  /* ---------- Buscador ---------- */
+  const buscador = document.getElementById("buscador");
+  const filas = document.querySelectorAll("#tabla-citas tr");
+
+  buscador.addEventListener("input", function () {
+    const texto = buscador.value.toLowerCase();
+    filas.forEach(function (fila) {
+      const coincide = fila.textContent.toLowerCase().includes(texto);
+      fila.style.display = coincide ? "" : "none";
+    });
+  });
+
+  /* ---------- Modal Reprogramar ---------- */
+  const modalRepro = document.getElementById("modal-reprogramar");
+  const nombreRepro = document.getElementById("modal-nombre-repro");
+  const campoFechaRepro = document.getElementById("fecha-repro");
+  const botonesRepro = document.querySelectorAll(".btn-reprogramar");
+  const cancelarRepro = document.getElementById("btn-cancelar-repro");
+
+  campoFechaRepro.min = new Date().toISOString().split("T")[0];
+
+  botonesRepro.forEach(function (boton) {
+    boton.addEventListener("click", function () {
+      nombreRepro.textContent = boton.dataset.alumno;
+      modalRepro.classList.add("abierto");
+    });
+  });
+
+  cancelarRepro.addEventListener("click", function () {
+    modalRepro.classList.remove("abierto");
+  });
+
+  modalRepro.addEventListener("click", function (evento) {
+    if (evento.target === modalRepro) {
+      modalRepro.classList.remove("abierto");
+    }
+  });
+
+
+ const modalReal = document.getElementById("modal-realizada");
+  const nombreReal = document.getElementById("modal-nombre-real");
+  const botonesReal = document.querySelectorAll(".btn-realizada");
+  const cancelarReal = document.getElementById("btn-cancelar-real");
+
+  botonesReal.forEach(function (boton) {
+    boton.addEventListener("click", function () {
+      nombreReal.textContent = boton.dataset.alumno;
+      modalReal.classList.add("abierto");
+    });
+  });
+
+  cancelarReal.addEventListener("click", function () {
+    modalReal.classList.remove("abierto");
+  });
+
+  modalReal.addEventListener("click", function (evento) {
+    if (evento.target === modalReal) {
+      modalReal.classList.remove("abierto");
+    }
+  });
+
+</script>
+{% endblock %}
