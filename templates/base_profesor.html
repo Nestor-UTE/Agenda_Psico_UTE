@@ -8,23 +8,52 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/panel.css') }}">
 </head>
-<body class="profesor">
-    
+<body>
+
   <header class="encabezado">
+    <button type="button" class="btn-menu" id="btn-menu">
+      <i class="bi bi-list"></i>
+    </button>
     <h1>Panel Profesor</h1>
-    <a href="/logout" class="cerrar-sesion">
-      <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-    </a>
   </header>
 
-  <nav class="barra-nav">
-    <a href="{{ url_for('panel_profesor') }}" class="{{ 'activo' if pagina == 'inicio' }}"><i class="bi bi-house"></i><span>Inicio</span></a>
-    <a href="{{ url_for('solicitar_cita') }}" class="{{ 'activo' if pagina == 'solicitar' }}"><i class="bi bi-calendar-plus"></i><span>Solicitar cita</span></a>
-    <a href="{{ url_for('mis_alumnos') }}" class="{{ 'activo' if pagina == 'alumnos' }}"><i class="bi bi-people"></i><span>Mis alumnos</span></a>
-    <a href="{{ url_for('seguimiento_profesor') }}" class="{{ 'activo' if pagina == 'seguimiento' }}"><i class="bi bi-clipboard-pulse"></i><span>Seguimiento</span></a>
-  </nav>
+  <div class="contenedor">
 
-  {% block contenido %}{% endblock %}
+    <aside class="menu" id="menu">
+      <nav>
+        <ul>
+          <li><a href="{{ url_for('panel_profesor') }}" class="{{ 'activo' if pagina == 'inicio' }}"><i class="bi bi-house"></i><span>Inicio</span></a></li>
+          <li><a href="{{ url_for('solicitar_cita') }}" class="{{ 'activo' if pagina == 'solicitar' }}"><i class="bi bi-calendar-plus"></i><span>Solicitar cita</span></a></li>
+          <li><a href="{{ url_for('mis_alumnos') }}" class="{{ 'activo' if pagina == 'alumnos' }}"><i class="bi bi-people"></i><span>Mis alumnos</span></a></li>
+          <li><a href="{{ url_for('seguimiento_profesor') }}" class="{{ 'activo' if pagina == 'seguimiento' }}"><i class="bi bi-clipboard-pulse"></i><span>Seguimiento</span></a></li>
+        </ul>
+      </nav>
+      <div class="menu-pie">
+        <div class="usuario">
+          <div class="usuario-avatar"><i class="bi bi-person"></i></div>
+            <div class="usuario-datos">
+            <strong>Tutor de ejemplo</strong>
+            <small>Profesor</small>
+          </div>
+        </div>
+        <a href="/logout" class="salir">
+        <i class="bi bi-box-arrow-right"></i><span>Cerrar sesión</span>
+        </a>
+      </div>
+    </aside>
+
+    {% block contenido %}{% endblock %}
+
+  </div>
+
+  <script>
+    const botonMenu = document.getElementById("btn-menu");
+    const menu = document.getElementById("menu");
+
+    botonMenu.addEventListener("click", function () {
+      menu.classList.toggle("colapsado");
+    });
+  </script>
 
 {% block scripts %}
 {% endblock %}

@@ -15,9 +15,6 @@
       <i class="bi bi-list"></i>
     </button>
     <h1>Panel Psicóloga</h1>
-    <a href="/logout" class="cerrar-sesion">
-      <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-    </a>
   </header>
 
   <div class="contenedor">
@@ -34,6 +31,18 @@
           <li><a href="{{ url_for('profesores') }}" class="{{ 'activo' if pagina == 'profesores' }}"><i class="bi bi-person-badge"></i><span>Profesores registrados</span></a></li>
         </ul>
       </nav>
+      <div class="menu-pie">
+        <div class="usuario">
+          <div class="usuario-avatar"><i class="bi bi-person"></i></div>
+            <div class="usuario-datos">
+            <strong>Psicóloga</strong>
+            <small>Consultorio UTE</small>
+          </div>
+        </div>
+        <a href="/logout" class="salir">
+        <i class="bi bi-box-arrow-right"></i><span>Cerrar sesión</span>
+        </a>
+      </div>
     </aside>
 
     {% block contenido %}{% endblock %}

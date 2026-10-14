@@ -9,34 +9,42 @@ body {
   background: #ff8a00;
 }
 
+/* ---------- Pantalla dividida en dos ---------- */
 .pantalla {
-  position: relative;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
+  gap: 80px;
+  padding: 40px;
 }
 
-.marca {
-  position: absolute;
-  top: 28px;
-  left: 32px;
+/* ---------- Lado izquierdo: logo y eslogan ---------- */
+.lado-marca {
+  flex: 1;
+  max-width: 480px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  text-align: center;
+}
+
+.logo {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+}
+
+.eslogan {
+  margin-top: 0;
+  font-size: 24px;
+  font-weight: 600;
   color: #ffffff;
 }
 
-.marca-logo {
-    font-size: 2px;
-}
-
-.marca-texto {
-  font-size: 15px;
-  line-height: 1.2;
-}
-
+/* ---------- Tarjeta ---------- */
 .tarjeta {
+  flex: 1;
   width: 100%;
   max-width: 460px;
   background: #ffffff;
@@ -53,12 +61,32 @@ body {
   margin-bottom: 24px;
 }
 
+/* ---------- Selector Tutor / Psicóloga ---------- */
 .roles {
+  position: relative;
   display: flex;
   background: #eceef2;
   border-radius: 999px;
-  padding: 4px;
-  margin-bottom: 18px;
+  padding: 5px;
+  margin-bottom: 20px;
+}
+
+/* La pastilla azul que se desliza */
+.roles::before {
+  content: "";
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc(50% - 5px);
+  border-radius: 999px;
+  background: #6a9fdc;
+  box-shadow: 0 3px 8px rgba(106, 159, 220, 0.4);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.roles:has(#rol-psicologa:checked)::before {
+  transform: translateX(100%);
 }
 
 .roles input {
@@ -66,29 +94,38 @@ body {
 }
 
 .roles label {
+  position: relative;
+  z-index: 1;
   flex: 1;
   text-align: center;
-  padding: 9px 0;
+  padding: 12px 0;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 600;
   color: #6b7280;
   cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.roles label:hover {
+  color: #3b7f7c;
 }
 
 .roles input:checked + label {
   background: #6a9fdc;
   color: #ffffff;
-  font-weight: 600;
+  box-shadow: 0 3px 8px rgba(106, 159, 220, 0.4);
 }
 
 /* ---------- Campos de texto ---------- */
 .campo {
+  position: relative;
   margin-bottom: 12px;
 }
 
 .campo input {
   width: 100%;
-  padding: 12px 44px;  
+  padding: 12px 44px;
   border: 1px solid #c9d3e3;
   border-radius: 999px;
   background: #f3f5f9;
@@ -97,8 +134,13 @@ body {
   color: #333333;
   outline: none;
 }
-.campo {
-  position: relative;
+
+.campo input::placeholder {
+  color: #9aa3b2;
+}
+
+.campo input:focus {
+  border-color: #6a9fdc;
 }
 
 .campo > i {
@@ -126,14 +168,6 @@ body {
   outline: none;
 }
 
-.campo input::placeholder {
-  color: #9aa3b2;
-}
-
-.campo input:focus {
-  border-color: #6a9fdc;
-}
-
 /* ---------- Botón Entrar ---------- */
 .btn-entrar {
   width: 100%;
@@ -154,28 +188,85 @@ body {
   background: #5890d3;
 }
 
-/* ---------- Folio del alumno ---------- */
-.folio-box {
+/* ---------- Separador con "o" ---------- */
+.separador {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 22px;
+  margin: 26px 0 18px;
+  color: #9aa3b2;
+  font-size: 13px;
 }
 
-.folio-box p {
+.separador::before,
+.separador::after {
+  content: "";
   flex: 1;
-  font-size: 12px;
-  line-height: 1.3;
-  color: #222222;
+  height: 1px;
+  background: #dde3ee;
 }
 
-.folio-box input {
-  width: 82px;
-  padding: 9px 12px;
+/* ---------- Folio del alumno ---------- */
+.folio-box p {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #4b5563;
+  margin-bottom: 10px;
+}
+
+.folio-campo {
+  display: flex;
+  gap: 8px;
+}
+
+.folio-campo input {
+  flex: 1;
+  padding: 11px 16px;
   border: 1px solid #c9d3e3;
   border-radius: 999px;
   background: #f3f5f9;
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   outline: none;
+}
+
+.folio-campo input:focus {
+  border-color: #6a9fdc;
+}
+
+.folio-campo button {
+  padding: 11px 22px;
+  border: none;
+  border-radius: 999px;
+  background: #3b7f7c;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.folio-campo button:hover {
+  background: #2f6663;
+}
+
+/* ---------- Celular / pantallas chicas ---------- */
+@media (max-width: 900px) {
+  .pantalla {
+    flex-direction: column;
+    gap: 24px;
+    padding: 28px 20px;
+  }
+
+  .logo {
+    max-width: 200px;
+  }
+
+  .eslogan {
+    font-size: 18px;
+  }
+
+  .tarjeta {
+    padding: 36px 24px 32px;
+  }
 }

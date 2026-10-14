@@ -596,11 +596,65 @@ a.btn {
   color: #6b7280;
 }
 
-.profesor .contenido {
-  margin: 0 auto;
-  max-width: 1200px;
+/* ---------- Menú: tarjeta de usuario abajo ---------- */
+.menu {
+  display: flex;
+  flex-direction: column;
 }
 
-.profesor .encabezado {
-  position: static;
+.menu nav {
+  flex: 1;
+}
+
+.menu-pie {
+  border-top: 1px solid #e5e9f0;
+  padding-bottom: 10px;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px 8px;
+}
+
+.usuario-avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: #3b7f7c;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.usuario-datos strong {
+  display: block;
+  font-size: 14px;
+  color: #222222;
+}
+
+.usuario-datos small {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.menu a.salir {
+  color: #b04545;
+}
+
+.menu a.salir:hover {
+  background: #f8e3e3;
+}
+
+/* Cuando el menú está colapsado, solo se ve el avatar */
+.menu.colapsado .usuario-datos {
+  display: none;
+}
+
+.menu.colapsado .usuario {
+  padding: 16px 15px 8px;
 }
