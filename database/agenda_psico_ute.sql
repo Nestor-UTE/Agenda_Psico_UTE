@@ -113,6 +113,22 @@ CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`seguimiento` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+CREATE TABLE Ubicacion (
+  Id_ubicacion INT AUTO_INCREMENT PRIMARY KEY,
+  Edificio VARCHAR(10) NOT NULL,
+  Nombre_edificio VARCHAR(100) NOT NULL,
+  Salon VARCHAR(10) NOT NULL,
+  Referencia VARCHAR(150) NULL
+);
+
+INSERT INTO Ubicacion (Edificio, Nombre_edificio, Salon, Referencia)
+VALUES ('D5', 'POR CONFIRMAR', '00000', 'A un lado derecho de las escaleras');
+
+ALTER TABLE Cita
+ADD COLUMN Id_ubicacion INT NOT NULL DEFAULT 1,
+ADD CONSTRAINT fk_cita_ubicacion
+  FOREIGN KEY (Id_ubicacion) REFERENCES Ubicacion(Id_ubicacion);
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
