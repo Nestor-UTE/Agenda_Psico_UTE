@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
+#from flask import Flask, render_template
 
 app = Flask(__name__)
 
@@ -57,6 +58,30 @@ def mis_alumnos():
 def seguimiento_profesor():
     return render_template("seguimiento_profesor.html", pagina="seguimiento")
 
+
+@app.route("/folio", methods=["POST"])
+def consultar_folio():
+    folio = request.form.get("folio", "").strip()
+
+    # Si el folio llega vacío, regresamos al login
+    if not folio:
+        return redirect(url_for("inicio"))
+
+    # Datos de ejemplo (después se reemplazan por la consulta a MariaDB)
+    cita = {
+        "alumno": "Alumno de ejemplo",
+        "estado": "Esperando fecha",
+        "fecha": "15/10/2026",
+        "hora": "10:00",
+        "edificio": "D5",
+        "nombre_edificio": "POR CONFIRMAR",
+        "salon": "00000",
+        "referencia": "A un lado derecho de las escaleras",
+        "tutor": "Tutor de ejemplo",
+        "telefono_tutor": "81 0000 0000",
+    }
+
+    return render_template("alumno.html", folio=folio, cita=cita)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi cita | Agenda Psico UTE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/alumno.css') }}">
+</head>
+<body>
+
+  <main class="pantalla-alumno">
+
+    <a href="{{ url_for('inicio') }}" class="btn-salir">
+      <i class="bi bi-arrow-left"></i> Salir
+    </a>
+
+    <section class="lado-marca-alumno">
+      <img class="logo-alumno" src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Agenda Psico UTE">
+      <p class="eslogan-alumno">Tu espacio, tu proceso, tu tiempo</p>
+    </section>
+
+    <section class="tarjeta-alumno">
+      <h1>Hola, {{ cita.alumno }}</h1>
+      <p class="folio">Folio: {{ folio }}</p>
+
+      <div class="estado-cita">
+        <span>Estado de tu cita</span>
+        <span class="estado estado-{{ cita.estado|lower|replace(' ', '-') }}">{{ cita.estado }}</span>      
+      </div>
+
+      {% set pasos = ['Solicitada', 'Agendada', 'Realizada'] %}
+      {% set actual = {'Esperando fecha': 0, 'Agendada': 1, 'Reprogramada': 1, 'Realizada': 3}.get(cita.estado) %}
+
+      {% if actual is none %}
+      <p class="sin-fecha">Tu solicitud no fue aceptada. Habla con tu tutor para más información.</p>
+      {% else %}
+      <ol class="pasos">
+        {% for p in pasos %}
+        <li class="paso {{ 'hecho' if loop.index0 < actual }}{{ ' actual' if loop.index0 == actual }}">
+          <span class="paso-punto">
+            {% if loop.index0 < actual %}<i class="bi bi-check-lg"></i>{% else %}{{ loop.index }}{% endif %}
+          </span>
+          <span class="paso-texto">{{ p }}</span>
+        </li>
+        {% endfor %}
+      </ol>
+      {% endif %}
+
+      {% if cita.fecha %}
+      <ul class="datos">
+        <li>
+          <i class="bi bi-calendar-event"></i>
+          <div><small>Fecha y hora</small><strong>{{ cita.fecha }} · {{ cita.hora }}</strong></div>
+        </li>
+        <li>
+          <i class="bi bi-geo-alt"></i>
+          <div>
+            <small>Lugar</small>
+            <strong>Edificio {{ cita.edificio }} ({{ cita.nombre_edificio }}), salón {{ cita.salon }}</strong>
+            {% if cita.referencia %}<span>{{ cita.referencia }}</span>{% endif %}
+          </div>
+        </li>
+        <li>
+          <i class="bi bi-person-badge"></i>
+          <div>
+            <small>Tutor que te registró</small>
+            <strong>{{ cita.tutor }}</strong>
+            <span>Tel. {{ cita.telefono_tutor }}</span>
+          </div>
+        </li>
+      </ul>
+      {% elif actual is not none %}
+      <p class="sin-fecha">Todavía no tienes fecha asignada. La psicóloga te la dará pronto.</p>
+      {% endif %}
+    </section>
+
+  </main>
+
+</body>
+</html>

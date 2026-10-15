@@ -23,3 +23,13 @@ texto se marque la opción. Con CSS vamos a esconder los circulitos y convertir 
 en cuanto una ruta tenga más de un nivel (como /psicologa/solicitudes). Con url_for funciona siempre.
 
 {{ 'activo' if pagina == 'inicio' }}: pone la clase activo (el azul) solo en la opción donde estás. Cada ruta de Python manda su pagina.
+
+
+
+
+----------ALUMNO-------------
+{{ cita.alumno }}: Jinja (el motor de plantillas de Flask) mete el valor del diccionario en el HTML.
+estado-{{ cita.estado|lower }}: pasa el estado a minúsculas para armar la clase CSS. “Agendada” se vuelve estado-agendada, y así cada estado puede tener su color.
+{% if cita.fecha %}: si la cita todavía no tiene fecha (el tutor la solicitó pero la psicóloga no ha agendado), muestra un mensaje en lugar de datos vacíos. Es un caso real de tu proyecto.
+Solo muestra lo básico: fecha, lugar y tutor. El motivo, el resumen y las recomendaciones no se mandan a la plantilla, así que ni por error se muestran.
+Botón Salir: url_for('inicio') lo regresa al login.

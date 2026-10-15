@@ -1,0 +1,4 @@
+methods=["POST"]: tu formulario del login manda el folio con method="post", así que la ruta tiene que aceptar POST (por defecto Flask solo acepta GET).
+request.form.get("folio", ""): lee el campo name="folio" del formulario. Con .get y un valor por defecto no se rompe si el campo no viene. El .strip() quita espacios de más.
+if not folio: validación básica. Si lo mandan vacío o solo con espacios, lo regresa al login.
+cita es un diccionario: guarda datos con nombre ("hora": "10:00"). Es lo que después va a llenar la consulta a la BD. Por ahora cualquier folio que escribas va a mostrar estos mismos datos.
