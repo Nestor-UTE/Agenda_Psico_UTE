@@ -2,3 +2,20 @@ methods=["POST"]: tu formulario del login manda el folio con method="post", así
 request.form.get("folio", ""): lee el campo name="folio" del formulario. Con .get y un valor por defecto no se rompe si el campo no viene. El .strip() quita espacios de más.
 if not folio: validación básica. Si lo mandan vacío o solo con espacios, lo regresa al login.
 cita es un diccionario: guarda datos con nombre ("hora": "10:00"). Es lo que después va a llenar la consulta a la BD. Por ahora cualquier folio que escribas va a mostrar estos mismos datos.
+
+
+
+generate_password_hash(...) convierte "clave123" en un texto revuelto que no se puede deshacer. Eso es lo que se guarda en la BD, así que si alguien la abre no ve la contraseña real.
+check_password_hash(hash, contrasena_plana) compara lo que escribe el usuario contra el hash guardado y devuelve True o False. Nunca se “desencripta” nada.
+@classmethod nueva(...) es una forma alterna de crear el objeto (recibe cls, o sea la propia clase). Hace el hash por ti. Lo separé del __init__ porque cuando lees de la BD, la contraseña ya viene como hash y no hay que revolverla otra vez. Si el constructor hiciera el hash, se estaría hasheando un hash.
+buscar_por_usuario es lo que va a usar el login: trae una sola fila con fetchone() y regresa None si no existe. Usa %s en lugar de pegar el texto en el SQL, que evita la inyección SQL.
+verificar_contrasena es un método de la clase, así que el login se va a leer como psicologa.verificar_contrasena(clave). Eso es POO limpia para tu rúbrica.
+
+
+
+request.form.get("rol", "tutor"): lee el selector del formulario. El "tutor" es el valor por defecto si no llega nada.
+Una sola condición para los dos errores (persona is None or not ...): si el usuario no existe, Python ya no evalúa lo segundo, así que no se rompe al llamar .verificar_contrasena sobre None. Y el mensaje es el mismo en ambos casos, para que nadie pueda averiguar qué correos existen.
+flash(...): guarda un mensaje que se muestra una sola vez en la siguiente página. Todavía no lo mostramos, eso es el siguiente paso.
+session.clear() antes de guardar: evita que se mezcle una sesión anterior con la nueva.
+session["rol"] y session["id"]: lo que después vamos a revisar para decidir quién puede entrar a cada panel y para mostrar el nombre real en la tarjeta del menú.
+/logout: borra la sesión y regresa al login. Tus botones de “Cerrar sesión” ya apuntaban a esa ruta.

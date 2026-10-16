@@ -250,6 +250,25 @@ body {
   background: #2f6663;
 }
 
+/* ---------- Mensaje de error ---------- */
+.alerta-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: #f8e3e3;
+  color: #b04545;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.alerta-error i {
+  font-size: 18px;
+}
+
+
 /* ---------- Celular / pantallas chicas ---------- */
 @media (max-width: 900px) {
   .pantalla {

@@ -23,8 +23,9 @@ USE `agenda_psico_ute` ;
 CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`tutor` (
   `id_tutor` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
-  `telefono` INT NOT NULL,
+  `telefono` VARCHAR(15) NOT NULL,
   `correo` VARCHAR(45) NOT NULL,
+  `contrasena` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id_tutor`))
 ENGINE = InnoDB;
 
@@ -55,10 +56,10 @@ ENGINE = InnoDB;
 -- Table `agenda_psico_ute`.`psicologa`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`psicologa` (
-  `id_psicologa` INT(11) NOT NULL AUTO_INCREMENT;
+  `id_psicologa` INT(11) NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
   `usuario` VARCHAR(45) NOT NULL,
-  `contrasena` VARCHAR(45) NOT NULL,
+  `contrasena` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id_psicologa`))
 ENGINE = InnoDB;
 
@@ -69,9 +70,9 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`cita` (
   `id_cita` INT NOT NULL AUTO_INCREMENT,
   `num_folio` VARCHAR(45) NOT NULL,
-  `fecha` DATETIME NOT NULL,
+  `fecha` DATETIME NULL,
   `estatus` VARCHAR(45) NOT NULL,
-  `motivo` VARCHAR(45) NULL,
+  `motivo` VARCHAR(255) NULL,
   `matricula_alumno` INT NULL,
   `id_tutor` INT NULL,
   `id_psicologa` INT NULL,
@@ -113,21 +114,21 @@ CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`seguimiento` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
-CREATE TABLE Ubicacion (
-  Id_ubicacion INT AUTO_INCREMENT PRIMARY KEY,
-  Edificio VARCHAR(10) NOT NULL,
-  Nombre_edificio VARCHAR(100) NOT NULL,
-  Salon VARCHAR(10) NOT NULL,
-  Referencia VARCHAR(150) NULL
+CREATE TABLE ubicacion (
+  id_ubicacion INT AUTO_INCREMENT PRIMARY KEY,
+  edificio VARCHAR(10) NOT NULL,
+  docencia VARCHAR(100) NOT NULL,
+  salon VARCHAR(10) NOT NULL,
+  referencia VARCHAR(150) NULL
 );
 
-INSERT INTO Ubicacion (Edificio, Nombre_edificio, Salon, Referencia)
-VALUES ('D5', 'POR CONFIRMAR', '00000', 'A un lado derecho de las escaleras');
+INSERT INTO ubicacion (edificio, docencia, salon, referencia)
+VALUES ('D6', 'Educación', '101', 'A un lado derecho de las escaleras');
 
-ALTER TABLE Cita
-ADD COLUMN Id_ubicacion INT NOT NULL DEFAULT 1,
+ALTER TABLE cita
+ADD COLUMN id_ubicacion INT NOT NULL DEFAULT 1,
 ADD CONSTRAINT fk_cita_ubicacion
-  FOREIGN KEY (Id_ubicacion) REFERENCES Ubicacion(Id_ubicacion);
+  FOREIGN KEY (id_ubicacion) REFERENCES ubicacion(id_ubicacion);
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

@@ -1,7 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for
-#from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from config import SECRET_KEY
+from models.psicologa import Psicologa
+from models.tutor import Tutor
 
 app = Flask(__name__)
+app.secret_key = SECRET_KEY
 
 
 @app.route("/")
@@ -82,6 +85,42 @@ def consultar_folio():
     }
 
     return render_template("alumno.html", folio=folio, cita=cita)
+
+@app.route("/login", methods=["POST"])
+def login():
+    rol = request.form.get("rol", "tutor")
+    usuario = request.form.get("usuario", "").strip()
+    contrasena = request.form.get("password", "")
+
+    # Según el selector, buscamos en una tabla u otra
+    if rol == "psicologa":
+        persona = Psicologa.buscar_por_usuario(usuario)
+    else:
+        persona = Tutor.buscar_por_correo(usuario)
+
+    # Mismo mensaje si falla el usuario o la contraseña (no damos pistas)
+    if persona is None or not persona.verificar_contrasena(contrasena):
+        flash("Usuario o contraseña incorrectos")
+        return redirect(url_for("inicio"))
+
+    # Login correcto: limpiamos cualquier sesión vieja y guardamos los datos
+    session.clear()
+    session["rol"] = rol
+    session["nombre"] = persona.nombre
+
+    if rol == "psicologa":
+        session["id"] = persona.id_psicologa
+        return redirect(url_for("panel_psicologa"))
+
+    session["id"] = persona.id_tutor
+    return redirect(url_for("panel_profesor"))
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("inicio"))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
