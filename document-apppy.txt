@@ -19,3 +19,10 @@ flash(...): guarda un mensaje que se muestra una sola vez en la siguiente págin
 session.clear() antes de guardar: evita que se mezcle una sesión anterior con la nueva.
 session["rol"] y session["id"]: lo que después vamos a revisar para decidir quién puede entrar a cada panel y para mostrar el nombre real en la tarjeta del menú.
 /logout: borra la sesión y regresa al login. Tus botones de “Cerrar sesión” ya apuntaban a esa ruta.
+
+
+login_requerido("psicologa") recibe el rol que se necesita. Devuelve el decorador, que a su vez envuelve a tu función.
+session.get("rol") != rol: si no hay sesión, get devuelve None y no coincide, así que te manda al login. Si hay sesión pero de otro rol, también te bloquea. Un tutor no puede meterse al panel de la psicóloga, aunque haya iniciado sesión.
+@wraps(funcion) hace que Flask siga viendo cada ruta con su nombre original. Sin eso, todas las rutas se llamarían envoltura y Flask marcaría error por nombres repetidos.
+El orden importa: @app.route va arriba y @login_requerido abajo. Si los inviertes, la ruta se registra sin la protección.
+Reutilizamos el mismo mensaje con flash, así que el aviso aparece en la caja roja del login.

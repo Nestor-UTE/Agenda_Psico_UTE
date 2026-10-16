@@ -2,9 +2,22 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from config import SECRET_KEY
 from models.psicologa import Psicologa
 from models.tutor import Tutor
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+
+def login_requerido(rol):
+    """Solo deja pasar si la sesión tiene el rol indicado ('psicologa' o 'tutor')."""
+    def decorador(funcion):
+        @wraps(funcion)
+        def envoltura(*args, **kwargs):
+            if session.get("rol") != rol:
+                flash("Inicia sesión para continuar")
+                return redirect(url_for("inicio"))
+            return funcion(*args, **kwargs)
+        return envoltura
+    return decorador
 
 
 @app.route("/")
@@ -12,52 +25,63 @@ def inicio():
     return render_template("index.html")
 
 @app.route("/panel-psicologa")
+@login_requerido("psicologa")
 def panel_psicologa():
     return render_template("panel_psicologa.html", pagina="inicio")
 
 @app.route("/panel-psicologa/solicitudes")
+@login_requerido("psicologa")
 def solicitudes():
     return render_template("solicitudes.html", pagina="solicitudes")
 
 @app.route("/panel-psicologa/agenda")
+@login_requerido("psicologa")
 def agenda():
     return render_template("agenda.html", pagina="agenda")
 
 @app.route("/panel-psicologa/seguimiento")
+@login_requerido("psicologa")
 def seguimiento():
     return render_template("seguimiento.html", pagina="seguimiento")
 
 @app.route("/panel-psicologa/historial")
+@login_requerido("psicologa")
 def historial():
     return render_template("historial.html", pagina="historial")
 
 
 @app.route("/panel-psicologa/alumnos")
+@login_requerido("psicologa")
 def lista_alumnos():
     return render_template("lista_alumnos.html", pagina="alumnos")
 
 
 @app.route("/panel-psicologa/profesores")
+@login_requerido("psicologa")
 def profesores():
     return render_template("lista_profesores.html", pagina="profesores")
 
 
 @app.route("/panel-profesor")
+@login_requerido("tutor")
 def panel_profesor():
     return render_template("inicio_profesor.html", pagina="inicio")
 
 
 @app.route("/panel-profesor/solicitar-cita")
+@login_requerido("tutor")
 def solicitar_cita():
     return render_template("solicitar_cita.html", pagina="solicitar")
 
 
 @app.route("/panel-profesor/mis-alumnos")
+@login_requerido("tutor")
 def mis_alumnos():
     return render_template("mis_alumnos.html", pagina="alumnos")
 
 
 @app.route("/panel-profesor/seguimiento")
+@login_requerido("tutor")
 def seguimiento_profesor():
     return render_template("seguimiento_profesor.html", pagina="seguimiento")
 
