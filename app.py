@@ -59,7 +59,8 @@ def lista_alumnos():
 @app.route("/panel-psicologa/profesores")
 @login_requerido("psicologa")
 def profesores():
-    return render_template("lista_profesores.html", pagina="profesores")
+    tutores = Tutor.obtener_resumen()
+    return render_template("lista_profesores.html", pagina="profesores", tutores=tutores)
 
 
 @app.route("/panel-profesor")

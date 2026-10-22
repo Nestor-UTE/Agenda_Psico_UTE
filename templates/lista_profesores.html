@@ -19,29 +19,25 @@
           <tr>
             <th>Nombre</th>
             <th>Correo</th>
+            <th>Teléfono</th>
             <th>Grupo a cargo</th>
             <th>Alumnos</th>
           </tr>
         </thead>
         <tbody id="tabla-datos">
+          {% for t in tutores %}
           <tr>
-            <td>Profesor de ejemplo 1</td>
-            <td>profesor1@ute.edu.mx</td>
-            <td>3A</td>
-            <td>25</td>
+            <td>{{ t.nombre }}</td>
+            <td>{{ t.correo }}</td>
+            <td>{{ t.telefono }}</td>
+            <td>{{ t.grupos or '—' }}</td>
+            <td>{{ t.total_alumnos }}</td>
           </tr>
+          {% else %}
           <tr>
-            <td>Profesor de ejemplo 2</td>
-            <td>profesor2@ute.edu.mx</td>
-            <td>5B</td>
-            <td>22</td>
+            <td colspan="5">Todavía no hay tutores registrados.</td>
           </tr>
-          <tr>
-            <td>Profesor de ejemplo 3</td>
-            <td>profesor3@ute.edu.mx</td>
-            <td>1C</td>
-            <td>28</td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

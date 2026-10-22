@@ -78,6 +78,34 @@ class Tutor:
         finally:
             conexion.close()
 
+    @staticmethod
+    def obtener_resumen():
+        """Regresa los tutores con sus grupos y cuántos alumnos tiene cada uno.
+        Cada elemento es un diccionario: nombre, correo, telefono, grupos, total_alumnos."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return []
+        try:
+            with conexion.cursor() as cursor:
+                sql = """
+                    SELECT t.nombre, t.correo, t.telefono,
+                           GROUP_CONCAT(DISTINCT CONCAT(a.grado, a.grupo) ORDER BY a.grado, a.grupo SEPARATOR ', ') AS grupos,
+                           COUNT(a.matricula) AS total_alumnos
+                    FROM tutor t
+                    LEFT JOIN alumnos a ON a.id_tutor = t.id_tutor
+                    GROUP BY t.id_tutor, t.nombre, t.correo, t.telefono
+                    ORDER BY t.nombre
+                """
+                cursor.execute(sql)
+                return cursor.fetchall()
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar el resumen de tutores: {error}")
+            return []
+        finally:
+            conexion.close()
+
+            
+
 
 if __name__ == "__main__":
     nuevo = Tutor.nuevo("Tutor Prueba", "8112345678", "tutor1@ute.edu.mx", "clave123")
