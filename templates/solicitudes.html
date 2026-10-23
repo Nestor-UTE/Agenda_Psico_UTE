@@ -22,18 +22,24 @@
           </tr>
         </thead>
         <tbody>
+          {% for c in citas %}
           <tr>
-            <td>Tutor de ejemplo</td>
-            <td>Alumno de ejemplo</td>
-            <td>0000000</td>
-            <td>TIC</td>
-            <td>3A</td>
-            <td>Motivo de ejemplo</td>
+            <td>{{ c.tutor }}</td>
+            <td>{{ c.alumno }}</td>
+            <td>{{ c.matricula }}</td>
+            <td>{{ c.carrera }}</td>
+            <td>{{ c.grupo }}</td>
+            <td>{{ c.motivo }}</td>
             <td class="acciones">
-              <button type="button" class="btn btn-azul btn-agendar" data-alumno="Alumno de ejemplo">Agendar</button>
+              <button type="button" class="btn btn-azul btn-agendar" data-alumno="{{ c.alumno }}">Agendar</button>
               <button type="button" class="btn btn-gris">Rechazar</button>
             </td>
           </tr>
+          {% else %}
+          <tr>
+            <td colspan="7">No hay solicitudes pendientes.</td>
+          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

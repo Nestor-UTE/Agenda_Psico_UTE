@@ -24,3 +24,9 @@ GROUP_CONCAT(DISTINCT a.grupo ... SEPARATOR ', ') junta todos sus grupos en un s
 GROUP BY agrupa todo por tutor, para que cada uno salga en una sola fila.
 return cursor.fetchall() regresa una lista de diccionarios (por el DictCursor de tu conexion.py), y la plantilla los usa directo con t.nombre, t.telefono, etc. Por eso aquí no armo objetos Tutor: esta consulta mezcla datos de dos tablas y no encaja con la clase.
 Mantiene tu patrón de try/except, finally: conexion.close() y lista vacía si algo falla.
+
+LEFT JOIN alumnos y LEFT JOIN tutor traen el nombre del alumno y del tutor a partir de los ids que guarda la cita. Es LEFT para que una cita no desaparezca si falta alguno de los dos datos.
+CONCAT(a.nombre, ' ', a.a_paterno, ' ', a.a_materno) arma el nombre completo, y CONCAT(a.grado, a.grupo) junta 3 y A en 3A, igual que en Profesores.
+WHERE c.estatus = 'Agendada' es lo que separa lo actual de lo viejo. El Historial usa IN (...) para tomar varios estatus a la vez.
+ORDER BY c.fecha ASC deja la más próxima arriba en la Agenda, y DESC deja la más reciente arriba en el Historial. Es la respuesta directa al feedback.
+No formateo la fecha en SQL. Regreso el datetime tal cual y la pantalla la formatea con strftime. Así evitamos líos con el símbolo % en las consultas.

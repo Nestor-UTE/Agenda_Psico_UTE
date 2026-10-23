@@ -3,6 +3,7 @@ from config import SECRET_KEY
 from models.psicologa import Psicologa
 from models.tutor import Tutor
 from functools import wraps
+from models.cita import Cita
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -32,12 +33,14 @@ def panel_psicologa():
 @app.route("/panel-psicologa/solicitudes")
 @login_requerido("psicologa")
 def solicitudes():
-    return render_template("solicitudes.html", pagina="solicitudes")
+    citas = Cita.obtener_solicitudes()
+    return render_template("solicitudes.html", pagina="solicitudes", citas=citas)
 
 @app.route("/panel-psicologa/agenda")
 @login_requerido("psicologa")
 def agenda():
-    return render_template("agenda.html", pagina="agenda")
+    citas = Cita.obtener_agenda()
+    return render_template("agenda.html", pagina="agenda", citas=citas)
 
 @app.route("/panel-psicologa/seguimiento")
 @login_requerido("psicologa")
@@ -47,7 +50,8 @@ def seguimiento():
 @app.route("/panel-psicologa/historial")
 @login_requerido("psicologa")
 def historial():
-    return render_template("historial.html", pagina="historial")
+    citas = Cita.obtener_historial()
+    return render_template("historial.html", pagina="historial", citas=citas)
 
 
 @app.route("/panel-psicologa/alumnos")

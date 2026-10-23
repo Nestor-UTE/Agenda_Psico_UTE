@@ -33,3 +33,14 @@ estado-{{ cita.estado|lower }}: pasa el estado a minúsculas para armar la clase
 {% if cita.fecha %}: si la cita todavía no tiene fecha (el tutor la solicitó pero la psicóloga no ha agendado), muestra un mensaje en lugar de datos vacíos. Es un caso real de tu proyecto.
 Solo muestra lo básico: fecha, lugar y tutor. El motivo, el resumen y las recomendaciones no se mandan a la plantilla, así que ni por error se muestran.
 Botón Salir: url_for('inicio') lo regresa al login.
+
+
+
+
+
+-------
+c.fecha.strftime('%d/%m/%Y') convierte la fecha de la BD (2026-10-23 12:30:00) al formato 23/10/2026, y '%H:%M' saca la hora (12:30). Antes eso venía escrito a mano.
+... if c.fecha else '—' pone una raya si la cita no tiene fecha, para que la página no truene.
+estado-{{ c.estatus|lower }} arma la clase del color a partir del estatus (Agendada queda estado-agendada).
+data-alumno="{{ c.alumno }}" hace que los botones sigan pasando el nombre al modal, igual que antes.
+El buscador y los modales no se tocan: como las filas ya vienen armadas desde el servidor, el JavaScript las encuentra igual.
