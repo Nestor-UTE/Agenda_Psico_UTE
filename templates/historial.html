@@ -27,42 +27,21 @@
           </tr>
         </thead>
         <tbody id="tabla-datos">
+          {% for c in citas %}
           <tr>
-            <td>08/10/2026</td>
-            <td>09:00</td>
-            <td>Alumno de ejemplo 3</td>
-            <td>0000003</td>
-            <td>1C</td>
-            <td>Tutor de ejemplo</td>
-            <td><span class="estado estado-realizada">Realizada</span></td>
+            <td>{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else '—' }}</td>
+            <td>{{ c.fecha.strftime('%H:%M') if c.fecha else '—' }}</td>
+            <td>{{ c.alumno }}</td>
+            <td>{{ c.matricula }}</td>
+            <td>{{ c.grupo }}</td>
+            <td>{{ c.tutor }}</td>
+            <td><span class="estado estado-{{ c.estatus|lower }}">{{ c.estatus }}</span></td>
           </tr>
+          {% else %}
           <tr>
-            <td>05/10/2026</td>
-            <td>11:00</td>
-            <td>Alumno de ejemplo 4</td>
-            <td>0000004</td>
-            <td>2B</td>
-            <td>Tutor de ejemplo</td>
-            <td><span class="estado estado-realizada">Realizada</span></td>
+            <td colspan="7">Todavía no hay citas en el historial.</td>
           </tr>
-          <tr>
-            <td>02/10/2026</td>
-            <td>13:00</td>
-            <td>Alumno de ejemplo 5</td>
-            <td>0000005</td>
-            <td>4A</td>
-            <td>Tutor de ejemplo</td>
-            <td><span class="estado estado-reprogramada">Reprogramada</span></td>
-          </tr>
-          <tr>
-            <td>29/09/2026</td>
-            <td>10:30</td>
-            <td>Alumno de ejemplo 6</td>
-            <td>0000006</td>
-            <td>6C</td>
-            <td>Tutor de ejemplo</td>
-            <td><span class="estado estado-rechazada">Rechazada</span></td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

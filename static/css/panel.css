@@ -321,6 +321,10 @@ th {
   font-size: 12px;
   font-weight: 600;
 }
+.estado-agendada {
+  background: #e3eefb;
+  color: #3f78b8;
+}
 
 .estado-pendiente {
   background: #e3eefb;

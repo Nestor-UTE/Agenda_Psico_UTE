@@ -28,42 +28,25 @@
           </tr>
         </thead>
         <tbody id="tabla-citas">
+          {% for c in citas %}
           <tr>
-            <td>15/10/2026</td>
-            <td>10:00</td>
-            <td>Alumno de ejemplo 1</td>
-            <td>0000001</td>
-            <td>3A</td>
-            <td>Tutor de ejemplo</td>
-            <td><span class="estado estado-pendiente">Pendiente</span></td>
+            <td>{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else '—' }}</td>
+            <td>{{ c.fecha.strftime('%H:%M') if c.fecha else '—' }}</td>
+            <td>{{ c.alumno }}</td>
+            <td>{{ c.matricula }}</td>
+            <td>{{ c.grupo }}</td>
+            <td>{{ c.tutor }}</td>
+            <td><span class="estado estado-{{ c.estatus|lower }}">{{ c.estatus }}</span></td>
             <td class="acciones">
-              <button type="button" class="btn btn-azul btn-realizada" data-alumno="Alumno de ejemplo 1">Realizada</button>
-              <button type="button" class="btn btn-gris btn-reprogramar" data-alumno="Alumno de ejemplo 1">Reprogramar</button>
+              <button type="button" class="btn btn-azul btn-realizada" data-alumno="{{ c.alumno }}">Realizada</button>
+              <button type="button" class="btn btn-gris btn-reprogramar" data-alumno="{{ c.alumno }}">Reprogramar</button>
             </td>
           </tr>
+          {% else %}
           <tr>
-            <td>16/10/2026</td>
-            <td>12:30</td>
-            <td>Alumno de ejemplo 2</td>
-            <td>0000002</td>
-            <td>5B</td>
-            <td>Tutor de ejemplo</td>
-            <td><span class="estado estado-pendiente">Pendiente</span></td>
-            <td class="acciones">
-              <button type="button" class="btn btn-azul btn-realizada" data-alumno="Alumno de ejemplo 2">Realizada</button>
-              <button type="button" class="btn btn-gris btn-reprogramar" data-alumno="Alumno de ejemplo 2">Reprogramar</button>
-            </td>
+            <td colspan="8">No hay citas agendadas.</td>
           </tr>
-          <tr>
-            <td>08/10/2026</td>
-            <td>09:00</td>
-            <td>Alumno de ejemplo 3</td>
-            <td>0000003</td>
-            <td>1C</td>
-            <td>Tutor de ejemplo</td>
-            <td><span class="estado estado-realizada">Realizada</span></td>
-            <td>—</td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>

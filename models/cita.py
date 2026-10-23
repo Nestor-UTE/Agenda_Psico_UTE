@@ -50,6 +50,91 @@ class Cita:
         finally:
             conexion.close()
 
+    @staticmethod
+    def obtener_agenda():
+        """Citas ya agendadas, la más próxima primero.
+        Regresa una lista de diccionarios listos para la pantalla."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return []
+        try:
+            with conexion.cursor() as cursor:
+                sql = """
+                    SELECT c.id_cita, c.num_folio, c.fecha, c.estatus,
+                           a.matricula,
+                           CONCAT(a.nombre, ' ', a.a_paterno, ' ', a.a_materno) AS alumno,
+                           CONCAT(a.grado, a.grupo) AS grupo,
+                           t.nombre AS tutor
+                    FROM cita c
+                    LEFT JOIN alumnos a ON a.matricula = c.matricula_alumno
+                    LEFT JOIN tutor t ON t.id_tutor = c.id_tutor
+                    WHERE c.estatus = 'Agendada'
+                    ORDER BY c.fecha ASC
+                """
+                cursor.execute(sql)
+                return cursor.fetchall()
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar la agenda: {error}")
+            return []
+        finally:
+            conexion.close()
+
+    @staticmethod
+    def obtener_historial():
+        """Citas ya cerradas (realizadas, reprogramadas o rechazadas), la más reciente primero."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return []
+        try:
+            with conexion.cursor() as cursor:
+                sql = """
+                    SELECT c.id_cita, c.num_folio, c.fecha, c.estatus,
+                           a.matricula,
+                           CONCAT(a.nombre, ' ', a.a_paterno, ' ', a.a_materno) AS alumno,
+                           CONCAT(a.grado, a.grupo) AS grupo,
+                           t.nombre AS tutor
+                    FROM cita c
+                    LEFT JOIN alumnos a ON a.matricula = c.matricula_alumno
+                    LEFT JOIN tutor t ON t.id_tutor = c.id_tutor
+                    WHERE c.estatus IN ('Realizada', 'Reprogramada', 'Rechazada')
+                    ORDER BY c.fecha DESC
+                """
+                cursor.execute(sql)
+                return cursor.fetchall()
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar el historial: {error}")
+            return []
+        finally:
+            conexion.close()
+
+    @staticmethod
+    def obtener_solicitudes():
+        """Citas que el tutor pidió y todavía no tienen fecha, la más antigua primero."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return []
+        try:
+            with conexion.cursor() as cursor:
+                sql = """
+                    SELECT c.id_cita, c.num_folio, c.motivo,
+                           a.matricula, a.carrera,
+                           CONCAT(a.nombre, ' ', a.a_paterno, ' ', a.a_materno) AS alumno,
+                           CONCAT(a.grado, a.grupo) AS grupo,
+                           t.nombre AS tutor
+                    FROM cita c
+                    LEFT JOIN alumnos a ON a.matricula = c.matricula_alumno
+                    LEFT JOIN tutor t ON t.id_tutor = c.id_tutor
+                    WHERE c.estatus = 'Solicitada'
+                    ORDER BY c.id_cita ASC
+                """
+                cursor.execute(sql)
+                return cursor.fetchall()
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar las solicitudes: {error}")
+            return []
+        finally:
+            conexion.close()
+
 if __name__ == "__main__":
     nueva = Cita("F001", "2026-10-15 10:00:00", "Pendiente", "Primera cita", "2024001", 2, 1)
     print("Guardado:", nueva.guardar())
