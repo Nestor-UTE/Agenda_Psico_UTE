@@ -37,7 +37,11 @@
             <td>{{ c.motivo }}</td>
             <td class="acciones">
               <button type="button" class="btn btn-azul btn-agendar" data-id="{{ c.id_cita }}" data-alumno="{{ c.alumno }}">Agendar</button>
-              <button type="button" class="btn btn-gris">Rechazar</button>
+              <form action="{{ url_for('rechazar_cita') }}" method="post"
+                    onsubmit="return confirm('¿Seguro que quieres rechazar esta solicitud?');">
+                <input type="hidden" name="id_cita" value="{{ c.id_cita }}">
+                <button type="submit" class="btn btn-gris">Rechazar</button>
+              </form>
             </td>
           </tr>
           {% else %}

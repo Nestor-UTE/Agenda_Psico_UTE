@@ -158,6 +158,31 @@ class Cita:
             return False
         finally:
             conexion.close()
+
+    @staticmethod
+    def rechazar(id_cita):
+        """Marca una solicitud como 'Rechazada' y le pone la fecha de hoy
+        para que salga hasta arriba en el Historial. Solo si seguía como 'Solicitada'."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return False
+        try:
+            with conexion.cursor() as cursor:
+                sql = """
+                    UPDATE cita
+                    SET estatus = 'Rechazada', fecha = NOW()
+                    WHERE id_cita = %s AND estatus = 'Solicitada'
+                """
+                cursor.execute(sql, (id_cita,))
+                actualizadas = cursor.rowcount
+            conexion.commit()
+            return actualizadas == 1
+        except pymysql.MySQLError as error:
+            print(f"Error al rechazar la cita: {error}")
+            conexion.rollback()
+            return False
+        finally:
+            conexion.close()
             
 if __name__ == "__main__":
     nueva = Cita("F001", "2026-10-15 10:00:00", "Pendiente", "Primera cita", "2024001", 2, 1)

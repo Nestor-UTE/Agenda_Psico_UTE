@@ -61,6 +61,21 @@ def agendar_cita():
         flash("No se pudo agendar: la cita ya no estaba pendiente", "error")
     return redirect(url_for("solicitudes"))
 
+@app.route("/panel-psicologa/solicitudes/rechazar", methods=["POST"])
+@login_requerido("psicologa")
+def rechazar_cita():
+    try:
+        id_cita = int(request.form.get("id_cita", ""))
+    except ValueError:
+        flash("La cita no es válida", "error")
+        return redirect(url_for("solicitudes"))
+
+    if Cita.rechazar(id_cita):
+        flash("Solicitud rechazada", "ok")
+    else:
+        flash("No se pudo rechazar: la solicitud ya no estaba pendiente", "error")
+    return redirect(url_for("solicitudes"))
+
 @app.route("/panel-psicologa/agenda")
 @login_requerido("psicologa")
 def agenda():
