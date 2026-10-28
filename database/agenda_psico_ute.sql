@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`cita` (
   INDEX `id_tutor_idx` (`id_tutor` ASC) VISIBLE,
   INDEX `id_psicologa_idx` (`id_psicologa` ASC) VISIBLE,
   INDEX `matricula_alumno_idx` (`matricula_alumno` ASC) VISIBLE,
+  UNIQUE INDEX `uq_cita_folio` (`num_folio`),
   CONSTRAINT `matricula_alumno`
     FOREIGN KEY (`matricula_alumno`)
     REFERENCES `agenda_psico_ute`.`alumnos` (`matricula`)

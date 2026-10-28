@@ -51,6 +51,31 @@ class Alumnos:
         finally:
             conexion.close()
 
+    @staticmethod
+    def obtener_por_tutor(id_tutor):
+        """Alumnos asignados a un tutor, para el formulario de solicitar cita.
+        Regresa diccionarios con: matricula, nombre, carrera y grupo (ej. 3A)."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return []
+        try:
+            with conexion.cursor() as cursor:
+                sql = """
+                    SELECT matricula, carrera,
+                           CONCAT(nombre, ' ', a_paterno, ' ', a_materno) AS nombre,
+                           CONCAT(grado, grupo) AS grupo
+                    FROM alumnos
+                    WHERE id_tutor = %s
+                    ORDER BY a_paterno, a_materno, nombre
+                """
+                cursor.execute(sql, (id_tutor,))
+                return cursor.fetchall()
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar los alumnos del tutor: {error}")
+            return []
+        finally:
+            conexion.close()
+
 if __name__ == "__main__":
     nuevo = Alumnos("2024001", "Alumno Prueba", "Pérez", "López", 2, "A", "TICs", id_tutor=2)
     print("Guardado:", nuevo.guardar())

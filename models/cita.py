@@ -1,4 +1,5 @@
 import pymysql
+import secrets
 from database.conexion import obtener_conexion
 
 class Cita:
@@ -183,7 +184,98 @@ class Cita:
             return False
         finally:
             conexion.close()
+
+    @staticmethod
+    def solicitar(id_tutor, motivo, alumno):
+        """Crea una solicitud de cita (estatus 'Solicitada', sin fecha).
+        Si el alumno no existe, lo registra con los datos que escribió el tutor.
+        'alumno' es un diccionario con: matricula, nombre, a_paterno, a_materno,
+        grado, grupo y carrera.
+        Regresa (folio, None) si salió bien, o (None, mensaje) si no."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return None, "No hay conexión con la base de datos"
+        try:
+            with conexion.cursor() as cursor:
+                # 1) ¿Ya existe ese alumno?
+                cursor.execute("SELECT id_tutor FROM alumnos WHERE matricula = %s",
+                               (alumno["matricula"],))
+                existente = cursor.fetchone()
+
+                if existente is None:
+                    cursor.execute(
+                        """INSERT INTO alumnos (matricula, nombre, a_paterno, a_materno,
+                                                grado, grupo, carrera, id_tutor)
+                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+                        (alumno["matricula"], alumno["nombre"], alumno["a_paterno"],
+                         alumno["a_materno"], alumno["grado"], alumno["grupo"],
+                         alumno["carrera"], id_tutor))
+                elif existente["id_tutor"] != id_tutor:
+                    conexion.rollback()
+                    return None, "Esa matrícula ya está registrada con otro tutor"
+
+                # 2) La psicóloga (el sistema tiene una sola)
+                cursor.execute("SELECT id_psicologa FROM psicologa ORDER BY id_psicologa LIMIT 1")
+                psicologa = cursor.fetchone()
+                if psicologa is None:
+                    conexion.rollback()
+                    return None, "No hay una psicóloga registrada"
+
+                # 3) La cita, con un folio aleatorio (se reintenta si se repite)
+                for _ in range(5):
+                    folio = secrets.token_hex(4)
+                    try:
+                        cursor.execute(
+                            """INSERT INTO cita (num_folio, fecha, estatus, motivo,
+                                                 matricula_alumno, id_tutor, id_psicologa)
+                               VALUES (%s, NULL, 'Solicitada', %s, %s, %s, %s)""",
+                            (folio, motivo, alumno["matricula"], id_tutor,
+                             psicologa["id_psicologa"]))
+                        conexion.commit()
+                        return folio, None
+                    except pymysql.err.IntegrityError as error:
+                        if error.args[0] != 1062:
+                            raise
+
+                conexion.rollback()
+                return None, "No se pudo generar un folio, intenta de nuevo"
+        except pymysql.MySQLError as error:
+            print(f"Error al solicitar la cita: {error}")
+            conexion.rollback()
+            return None, "No se pudo guardar la solicitud"
+        finally:
+            conexion.close()
             
+
+    @staticmethod
+    def obtener_por_folio(folio):
+        """Busca una cita por su folio y regresa solo lo que puede ver el alumno
+        (sin motivo, resumen ni recomendaciones). Regresa None si no existe."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return None
+        try:
+            with conexion.cursor() as cursor:
+                sql = """
+                    SELECT c.fecha, c.estatus,
+                           CONCAT(a.nombre, ' ', a.a_paterno) AS alumno,
+                           t.nombre AS tutor, t.telefono AS telefono_tutor,
+                           u.edificio, u.docencia AS nombre_edificio,
+                           u.salon, u.referencia
+                    FROM cita c
+                    LEFT JOIN alumnos a ON a.matricula = c.matricula_alumno
+                    LEFT JOIN tutor t ON t.id_tutor = c.id_tutor
+                    LEFT JOIN ubicacion u ON u.id_ubicacion = c.id_ubicacion
+                    WHERE c.num_folio = %s
+                """
+                cursor.execute(sql, (folio,))
+                return cursor.fetchone()
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar el folio: {error}")
+            return None
+        finally:
+            conexion.close()
+
 if __name__ == "__main__":
     nueva = Cita("F001", "2026-10-15 10:00:00", "Pendiente", "Primera cita", "2024001", 2, 1)
     print("Guardado:", nueva.guardar())
