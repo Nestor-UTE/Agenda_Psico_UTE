@@ -662,3 +662,22 @@ a.btn {
 .menu.colapsado .usuario {
   padding: 16px 15px 8px;
 }
+
+/* ---------- Avisos ---------- */
+.aviso {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.aviso-ok {
+  background: #dff1ee;
+  color: #3b7f7c;
+}
+
+.aviso-error {
+  background: #f8e3e3;
+  color: #b04545;
+}

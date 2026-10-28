@@ -134,7 +134,31 @@ class Cita:
             return []
         finally:
             conexion.close()
-
+    @staticmethod
+    def agendar(id_cita, fecha):
+        """Le pone fecha y hora a una solicitud y la pasa a 'Agendada'.
+        Solo cambia citas que siguen como 'Solicitada'. Regresa True si se actualizó."""
+        conexion = obtener_conexion()
+        if conexion is None:
+            return False
+        try:
+            with conexion.cursor() as cursor:
+                sql = """
+                    UPDATE cita
+                    SET fecha = %s, estatus = 'Agendada'
+                    WHERE id_cita = %s AND estatus = 'Solicitada'
+                """
+                cursor.execute(sql, (fecha, id_cita))
+                actualizadas = cursor.rowcount
+            conexion.commit()
+            return actualizadas == 1
+        except pymysql.MySQLError as error:
+            print(f"Error al agendar la cita: {error}")
+            conexion.rollback()
+            return False
+        finally:
+            conexion.close()
+            
 if __name__ == "__main__":
     nueva = Cita("F001", "2026-10-15 10:00:00", "Pendiente", "Primera cita", "2024001", 2, 1)
     print("Guardado:", nueva.guardar())

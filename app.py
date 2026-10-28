@@ -4,6 +4,7 @@ from models.psicologa import Psicologa
 from models.tutor import Tutor
 from functools import wraps
 from models.cita import Cita
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -35,6 +36,30 @@ def panel_psicologa():
 def solicitudes():
     citas = Cita.obtener_solicitudes()
     return render_template("solicitudes.html", pagina="solicitudes", citas=citas)
+    
+@app.route("/panel-psicologa/solicitudes/agendar", methods=["POST"])
+@login_requerido("psicologa")
+def agendar_cita():
+    fecha = request.form.get("fecha", "")
+    hora = request.form.get("hora", "")
+
+    # Validamos que lleguen datos correctos (el formulario del navegador se puede saltar)
+    try:
+        id_cita = int(request.form.get("id_cita", ""))
+        fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
+    except ValueError:
+        flash("La cita, la fecha o la hora no son válidas", "error")
+        return redirect(url_for("solicitudes"))
+
+    if fecha_hora < datetime.now():
+        flash("No se puede agendar una cita en una fecha pasada", "error")
+        return redirect(url_for("solicitudes"))
+
+    if Cita.agendar(id_cita, fecha_hora):
+        flash("Cita agendada correctamente", "ok")
+    else:
+        flash("No se pudo agendar: la cita ya no estaba pendiente", "error")
+    return redirect(url_for("solicitudes"))
 
 @app.route("/panel-psicologa/agenda")
 @login_requerido("psicologa")
