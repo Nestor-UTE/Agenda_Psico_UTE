@@ -6,6 +6,11 @@
 <main class="contenido">
   <h2>Solicitudes</h2>
   <p class="subtitulo">Citas que los tutores han pedido y esperan fecha</p>
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for categoria, mensaje in mensajes %}
+    <div class="aviso aviso-{{ categoria }}">{{ mensaje }}</div>
+    {% endfor %}
+  {% endwith %}
 
   <section class="caja">
     <div class="tabla-scroll">
@@ -31,8 +36,12 @@
             <td>{{ c.grupo }}</td>
             <td>{{ c.motivo }}</td>
             <td class="acciones">
-              <button type="button" class="btn btn-azul btn-agendar" data-alumno="{{ c.alumno }}">Agendar</button>
-              <button type="button" class="btn btn-gris">Rechazar</button>
+              <button type="button" class="btn btn-azul btn-agendar" data-id="{{ c.id_cita }}" data-alumno="{{ c.alumno }}">Agendar</button>
+              <form action="{{ url_for('rechazar_cita') }}" method="post"
+                    onsubmit="return confirm('¿Seguro que quieres rechazar esta solicitud?');">
+                <input type="hidden" name="id_cita" value="{{ c.id_cita }}">
+                <button type="submit" class="btn btn-gris">Rechazar</button>
+              </form>
             </td>
           </tr>
           {% else %}
@@ -51,7 +60,8 @@
     <h3>Agendar cita</h3>
     <p class="modal-alumno">Alumno: <strong id="modal-nombre"></strong></p>
 
-    <form action="#" method="post">
+    <form action="{{ url_for('agendar_cita') }}" method="post">
+      <input type="hidden" id="id-cita" name="id_cita">
       <label for="fecha">Fecha</label>
       <input type="date" id="fecha" name="fecha" required>
 
@@ -83,6 +93,7 @@
   botonesAgendar.forEach(function (boton) {
     boton.addEventListener("click", function () {
       nombreModal.textContent = boton.dataset.alumno;
+      document.getElementById("id-cita").value = boton.dataset.id;
       modal.classList.add("abierto");
     });
   });

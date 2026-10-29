@@ -5,39 +5,55 @@
 {% block contenido %}
 <main class="contenido">
   <h2>Solicitar cita</h2>
-  <p class="subtitulo">La psicóloga te asignará fecha y hora según su agenda</p>
+  <p class="subtitulo">Escribe los datos del alumno. La psicóloga te asignará fecha y hora según su agenda</p>
+
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for categoria, mensaje in mensajes %}
+    <div class="aviso aviso-{{ categoria }}">{{ mensaje }}</div>
+    {% endfor %}
+  {% endwith %}
 
   <section class="caja">
-    <form action="#" method="post" class="form-cita">
-
-      <div class="ancho-completo">
-        <label for="alumno">Alumno</label>
-        <select id="alumno" name="alumno" required>
-          <option value="">Selecciona un alumno</option>
-          <option data-matricula="0000001" data-carrera="TIC" data-grupo="3A">Alumno de ejemplo 1</option>
-          <option data-matricula="0000002" data-carrera="TIC" data-grupo="5B">Alumno de ejemplo 2</option>
-          <option data-matricula="0000003" data-carrera="TIC" data-grupo="1C">Alumno de ejemplo 3</option>
-        </select>
-      </div>
+    <form action="{{ url_for('solicitar_cita') }}" method="post" class="form-cita" autocomplete="off">
 
       <div>
         <label for="matricula">Matrícula</label>
-        <input type="text" id="matricula" name="matricula" readonly>
+        <input type="text" id="matricula" name="matricula" inputmode="numeric" pattern="[0-9]{6,9}" maxlength="9" value="{{ datos.get('matricula', '') }}" required>
       </div>
 
       <div>
         <label for="carrera">Carrera</label>
-        <input type="text" id="carrera" name="carrera" readonly>
+        <input type="text" id="carrera" name="carrera" maxlength="45" placeholder="Ej. TIC" value="{{ datos.get('carrera', '') }}" required>
+      </div>
+
+      <div>
+        <label for="grado">Grado</label>
+        <input type="number" id="grado" name="grado" min="1" max="11" value="{{ datos.get('grado', '') }}" required>
       </div>
 
       <div>
         <label for="grupo">Grupo</label>
-        <input type="text" id="grupo" name="grupo" readonly>
+        <input type="text" id="grupo" name="grupo" maxlength="2" placeholder="Ej. A" value="{{ datos.get('grupo', '') }}" required>
+      </div>
+
+      <div>
+        <label for="nombre">Nombre(s)</label>
+        <input type="text" id="nombre" name="nombre" maxlength="45" value="{{ datos.get('nombre', '') }}" required>
+      </div>
+
+      <div>
+        <label for="a_paterno">Apellido paterno</label>
+        <input type="text" id="a_paterno" name="a_paterno" maxlength="45" value="{{ datos.get('a_paterno', '') }}" required>
+      </div>
+
+      <div>
+        <label for="a_materno">Apellido materno</label>
+        <input type="text" id="a_materno" name="a_materno" maxlength="45" value="{{ datos.get('a_materno', '') }}">
       </div>
 
       <div class="ancho-completo">
         <label for="motivo">Motivo de la cita</label>
-        <textarea id="motivo" name="motivo" rows="4" placeholder="Describe brevemente por qué solicitas la cita" required></textarea>
+        <textarea id="motivo" name="motivo" rows="4" maxlength="255" placeholder="Describe brevemente por qué solicitas la cita" required>{{ datos.get('motivo', '') }}</textarea>
       </div>
 
       <div class="ancho-completo">
@@ -47,17 +63,4 @@
     </form>
   </section>
 </main>
-{% endblock %}
-
-{% block scripts %}
-<script>
-  const selectAlumno = document.getElementById("alumno");
-
-  selectAlumno.addEventListener("change", function () {
-    const opcion = selectAlumno.options[selectAlumno.selectedIndex];
-    document.getElementById("matricula").value = opcion.dataset.matricula || "";
-    document.getElementById("carrera").value = opcion.dataset.carrera || "";
-    document.getElementById("grupo").value = opcion.dataset.grupo || "";
-  });
-</script>
 {% endblock %}

@@ -4,6 +4,7 @@ from models.psicologa import Psicologa
 from models.tutor import Tutor
 from functools import wraps
 from models.cita import Cita
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -20,6 +21,44 @@ def login_requerido(rol):
         return envoltura
     return decorador
 
+def validar_solicitud(form):
+    """Revisa los datos del formulario de solicitar cita.
+    Regresa (alumno, motivo, error). Si hay error, los dos primeros son None."""
+    matricula = form.get("matricula", "").strip()
+    nombre = form.get("nombre", "").strip()
+    a_paterno = form.get("a_paterno", "").strip()
+    a_materno = form.get("a_materno", "").strip()
+    grupo = form.get("grupo", "").strip().upper()
+    carrera = form.get("carrera", "").strip()
+    motivo = form.get("motivo", "").strip()
+
+    if not (matricula.isascii() and matricula.isdigit() and 6 <= len(matricula) <= 9):
+        return None, None, "La matrícula debe tener entre 6 y 9 números"
+    if not nombre or len(nombre) > 45:
+        return None, None, "El nombre es obligatorio (máximo 45 caracteres)"
+    if not a_paterno or len(a_paterno) > 45:
+        return None, None, "El apellido paterno es obligatorio (máximo 45 caracteres)"
+    if len(a_materno) > 45:
+        return None, None, "El apellido materno es muy largo (máximo 45 caracteres)"
+    try:
+        grado = int(form.get("grado", ""))
+    except ValueError:
+        return None, None, "El grado debe ser un número"
+    if not 1 <= grado <= 11:
+        return None, None, "El grado debe estar entre 1 y 11"
+    if not (grupo.isalpha() and len(grupo) <= 2):
+        return None, None, "El grupo debe ser una o dos letras, por ejemplo A"
+    if not carrera or len(carrera) > 45:
+        return None, None, "La carrera es obligatoria (máximo 45 caracteres)"
+    if not motivo or len(motivo) > 255:
+        return None, None, "El motivo es obligatorio (máximo 255 caracteres)"
+
+    alumno = {
+        "matricula": int(matricula), "nombre": nombre, "a_paterno": a_paterno,
+        "a_materno": a_materno, "grado": grado, "grupo": grupo, "carrera": carrera,
+    }
+    return alumno, motivo, None
+
 
 @app.route("/")
 def inicio():
@@ -35,6 +74,45 @@ def panel_psicologa():
 def solicitudes():
     citas = Cita.obtener_solicitudes()
     return render_template("solicitudes.html", pagina="solicitudes", citas=citas)
+    
+@app.route("/panel-psicologa/solicitudes/agendar", methods=["POST"])
+@login_requerido("psicologa")
+def agendar_cita():
+    fecha = request.form.get("fecha", "")
+    hora = request.form.get("hora", "")
+
+    # Validamos que lleguen datos correctos (el formulario del navegador se puede saltar)
+    try:
+        id_cita = int(request.form.get("id_cita", ""))
+        fecha_hora = datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
+    except ValueError:
+        flash("La cita, la fecha o la hora no son válidas", "error")
+        return redirect(url_for("solicitudes"))
+
+    if fecha_hora < datetime.now():
+        flash("No se puede agendar una cita en una fecha pasada", "error")
+        return redirect(url_for("solicitudes"))
+
+    if Cita.agendar(id_cita, fecha_hora):
+        flash("Cita agendada correctamente", "ok")
+    else:
+        flash("No se pudo agendar: la cita ya no estaba pendiente", "error")
+    return redirect(url_for("solicitudes"))
+
+@app.route("/panel-psicologa/solicitudes/rechazar", methods=["POST"])
+@login_requerido("psicologa")
+def rechazar_cita():
+    try:
+        id_cita = int(request.form.get("id_cita", ""))
+    except ValueError:
+        flash("La cita no es válida", "error")
+        return redirect(url_for("solicitudes"))
+
+    if Cita.rechazar(id_cita):
+        flash("Solicitud rechazada", "ok")
+    else:
+        flash("No se pudo rechazar: la solicitud ya no estaba pendiente", "error")
+    return redirect(url_for("solicitudes"))
 
 @app.route("/panel-psicologa/agenda")
 @login_requerido("psicologa")
@@ -73,10 +151,23 @@ def panel_profesor():
     return render_template("inicio_profesor.html", pagina="inicio")
 
 
-@app.route("/panel-profesor/solicitar-cita")
+@app.route("/panel-profesor/solicitar-cita", methods=["GET", "POST"])
 @login_requerido("tutor")
 def solicitar_cita():
-    return render_template("solicitar_cita.html", pagina="solicitar")
+    if request.method == "GET":
+        return render_template("solicitar_cita.html", pagina="solicitar", datos={})
+
+    alumno, motivo, error = validar_solicitud(request.form)
+    if error is None:
+        folio, error = Cita.solicitar(session["id"], motivo, alumno)
+
+    if error:
+        # Se vuelve a mostrar el formulario con lo que escribió, para que no lo capture de nuevo
+        flash(error, "error")
+        return render_template("solicitar_cita.html", pagina="solicitar", datos=request.form)
+
+    flash(f"Solicitud enviada. Folio de la cita: {folio}", "ok")
+    return redirect(url_for("solicitar_cita"))
 
 
 @app.route("/panel-profesor/mis-alumnos")
@@ -93,25 +184,26 @@ def seguimiento_profesor():
 
 @app.route("/folio", methods=["POST"])
 def consultar_folio():
-    folio = request.form.get("folio", "").strip()
-
-    # Si el folio llega vacío, regresamos al login
-    if not folio:
+    folio = request.form.get("folio", "").strip().lower()
+    if not folio or len(folio) > 45:
         return redirect(url_for("inicio"))
 
-    # Datos de ejemplo (después se reemplazan por la consulta a MariaDB)
-    cita = {
-        "alumno": "Alumno de ejemplo",
-        "estado": "Esperando fecha",
-        "fecha": "15/10/2026",
-        "hora": "10:00",
-        "edificio": "D5",
-        "nombre_edificio": "POR CONFIRMAR",
-        "salon": "00000",
-        "referencia": "A un lado derecho de las escaleras",
-        "tutor": "Tutor de ejemplo",
-        "telefono_tutor": "81 0000 0000",
-    }
+    cita = Cita.obtener_por_folio(folio)
+    if cita is None:
+        flash("Folio no encontrado")
+        return redirect(url_for("inicio"))
+
+    # Preparamos lo que ve el alumno
+    estatus = cita["estatus"]
+    cita["estado"] = "Esperando fecha" if estatus == "Solicitada" else estatus
+
+    fecha = cita["fecha"]
+    if estatus in ("Solicitada", "Rechazada") or fecha is None:
+        cita["fecha"] = None
+        cita["hora"] = None
+    else:
+        cita["fecha"] = fecha.strftime("%d/%m/%Y")
+        cita["hora"] = fecha.strftime("%H:%M")
 
     return render_template("alumno.html", folio=folio, cita=cita)
 
