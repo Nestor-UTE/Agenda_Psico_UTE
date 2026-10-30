@@ -3,7 +3,7 @@
 ```mermaid
 graph TD
     Tutor((Tutor))
-    Psicologa((PsicOloga))
+    Psicologa((Psicologa))
 
     subgraph Sistema de Agenda Psicologica UTE
         UC1[Iniciar Sesion / Autenticarse]

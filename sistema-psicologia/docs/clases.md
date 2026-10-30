@@ -62,8 +62,24 @@ classDiagram
         +guardar()
         +obtener_todos()$
     }
+    class Ubicacion {
+    + int id_ubicacion
+    + String edificio
+    + String docencia
+    + String salon
+    + String referencia
+    + registrar_ubicacion()
+    + actualizar_ubicacion()
+}
 
+    
+
+    classDiagram
     Alumnos "1" -- "*" Cita : solicita
     Tutor "1" -- "*" Alumnos : supervisa
     Psicologa "1" -- "*" Cita : atiende
     Cita "1" -- "0..1" Seguimiento : genera
+    Ubicacion "1" -- "*" Cita : asigna
+    
+
+    
