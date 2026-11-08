@@ -1,0 +1,148 @@
+{% extends "base_psicologa.html" %}
+
+{% block titulo %}Registrar tutor{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+
+  <h2>Registrar tutor</h2>
+  <p class="subtitulo">
+    Ingresa los datos del tutor para crear su cuenta.
+  </p>
+
+  <div style="margin-bottom: 18px;">
+    <a href="{{ url_for('profesores') }}"
+     class="btn btn-azul">
+    <i class="bi bi-arrow-left"></i>
+    Volver
+    </a>
+  </div>
+
+
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for categoria, mensaje in mensajes %}
+      <div class="aviso aviso-{{ categoria }}">
+        {{ mensaje }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  <section class="caja">
+
+
+<form action="{{ url_for('registrar_tutor') }}"
+      method="post"
+      class="form-cita"
+      onsubmit="return confirm('¿Estás seguro de que deseas registrar este tutor?');">
+
+     
+       <input type="hidden"
+       name="_csrf_token"
+       value="{{ session.get('_csrf_token', '') }}">
+
+
+      <div>
+        <label for="nombre">Nombre completo</label>
+        <input type="text"
+               id="nombre"
+               name="nombre"
+               maxlength="45"
+               value="{{ datos.get('nombre', '') }}"
+               required>
+      </div>
+
+      <div>
+        <label for="correo">Correo electrónico</label>
+        <input type="email"
+               id="correo"
+               name="correo"
+               maxlength="45"
+               value="{{ datos.get('correo', '') }}"
+               required>
+      </div>
+
+      <div>
+        <label for="telefono">Teléfono (opcional)</label>
+        <input type="tel"
+               id="telefono"
+               name="telefono"
+               maxlength="15"
+               placeholder="Ej. 8112345678"
+               value="{{ datos.get('telefono', '') }}">
+      </div>
+
+      <div>
+        <label for="cuatrimestre">Cuatrimestre</label>
+        <input type="number"
+               id="cuatrimestre"
+               name="cuatrimestre"
+               min="1"
+               max="11"
+               value="{{ datos.get('cuatrimestre', '') }}"
+               required>
+      </div>
+
+      <div>
+        <label for="grupo">Grupo</label>
+        <input type="text"
+               id="grupo"
+               name="grupo"
+               maxlength="10"
+               placeholder="Ej. A"
+               value="{{ datos.get('grupo', '') }}"
+               required>
+      </div>
+
+      <div>
+        <label for="carrera">Carrera</label>
+        <select id="carrera" name="carrera" required>
+        <option value="">Selecciona una carrera</option>
+
+        {% set carreras = [
+        'Mecánica',
+        'Mantenimiento Industrial',
+        'Educación',
+        'Energía y Desarrollo Sostenible',
+        'Negocios y Mercadotecnia',
+        'Tecnologías de la Información e Innovación Digital',
+        'Logística',
+        'Mecatrónica'
+        ] %}
+
+        {% for opcion in carreras %}
+        <option value="{{ opcion }}"
+            {% if datos.get('carrera', '') == opcion %}
+            selected
+            {% endif %}>
+            {{ opcion }}
+        </option>
+        {% endfor %}
+
+        </select>
+       </div>
+
+
+      <div class="ancho-completo">
+        <label for="contrasena">Contraseña inicial</label>
+        <input type="password"
+               id="contrasena"
+               name="contrasena"
+               minlength="8"
+               maxlength="128"
+               autocomplete="new-password"
+               required>
+      </div>
+
+      <div class="ancho-completo">
+        <button type="submit" class="btn btn-azul">
+          <i class="bi bi-person-plus"></i>
+          Registrar tutor
+        </button>
+      </div>
+
+    </form>
+
+  </section>
+
+</main>
+{% endblock %}

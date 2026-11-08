@@ -20,14 +20,20 @@ USE `agenda_psico_ute` ;
 -- -----------------------------------------------------
 -- Table `agenda_psico_ute`.`tutor`
 -- -----------------------------------------------------
+
 CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`tutor` (
   `id_tutor` INT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(45) NOT NULL,
-  `telefono` VARCHAR(15) NOT NULL,
+  `telefono` VARCHAR(15) NULL,
   `correo` VARCHAR(45) NOT NULL,
   `contrasena` VARCHAR(255) NOT NULL,
-  PRIMARY KEY (`id_tutor`))
+  `cuatrimestre` INT NULL,
+  `grupo` VARCHAR(10) NULL,
+  `carrera` VARCHAR(100) NULL,
+  PRIMARY KEY (`id_tutor`)
+)
 ENGINE = InnoDB;
+
 
 
 -- -----------------------------------------------------

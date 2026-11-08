@@ -1,0 +1,132 @@
+{% extends "base_psicologa.html" %}
+
+{% block titulo %}Editar tutor{% endblock %}
+
+{% block contenido %}
+<main class="contenido">
+
+  <h2>Editar tutor</h2>
+  <p class="subtitulo">
+    Modifica los datos del tutor seleccionado.
+  </p>
+
+  <div style="margin-bottom: 18px;">
+    <a href="{{ url_for('profesores') }}"
+       class="btn btn-azul">
+      <i class="bi bi-arrow-left"></i>
+      Volver
+    </a>
+  </div>
+
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for categoria, mensaje in mensajes %}
+      <div class="aviso aviso-{{ categoria }}">
+        {{ mensaje }}
+      </div>
+    {% endfor %}
+  {% endwith %}
+
+  <section class="caja">
+
+
+<form action="{{ url_for('editar_tutor', id_tutor=id_tutor) }}"
+      method="post"
+      class="form-cita"
+      onsubmit="return confirm('¿Estás seguro de que deseas guardar los cambios de este tutor?');">
+
+
+<input type="hidden"
+       name="_csrf_token"
+       value="{{ session.get('_csrf_token', '') }}">
+
+
+      <div>
+        <label for="nombre">Nombre completo</label>
+        <input type="text"
+               id="nombre"
+               name="nombre"
+               maxlength="45"
+               value="{{ datos.get('nombre', '') }}"
+               required>
+      </div>
+
+      <div>
+        <label for="correo">Correo electrónico</label>
+        <input type="email"
+               id="correo"
+               name="correo"
+               maxlength="45"
+               value="{{ datos.get('correo', '') }}"
+               required>
+      </div>
+
+      <div>
+        <label for="telefono">Teléfono (opcional)</label>
+        <input type="tel"
+               id="telefono"
+               name="telefono"
+               maxlength="15"
+               value="{{ datos.get('telefono') or '' }}">
+      </div>
+
+      <div>
+        <label for="cuatrimestre">Cuatrimestre</label>
+        <input type="number"
+               id="cuatrimestre"
+               name="cuatrimestre"
+               min="1"
+               max="11"
+               value="{{ datos.get('cuatrimestre') or '' }}"
+               required>
+      </div>
+
+      <div>
+        <label for="grupo">Grupo</label>
+        <input type="text"
+               id="grupo"
+               name="grupo"
+               maxlength="10"
+               value="{{ datos.get('grupo') or '' }}"
+               required>
+      </div>
+
+      <div>
+        <label for="carrera">Carrera</label>
+        <select id="carrera" name="carrera" required>
+          <option value="">Selecciona una carrera</option>
+
+          {% set carreras = [
+            'Mecánica',
+            'Mantenimiento Industrial',
+            'Educación',
+            'Energía y Desarrollo Sostenible',
+            'Negocios y Mercadotecnia',
+            'Tecnologías de la Información e Innovación Digital',
+            'Logística',
+            'Mecatrónica'
+          ] %}
+
+          {% for opcion in carreras %}
+            <option value="{{ opcion }}"
+              {% if datos.get('carrera') == opcion %}
+                selected
+              {% endif %}>
+              {{ opcion }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="ancho-completo">
+        <button type="submit" class="btn btn-azul">
+          <i class="bi bi-check-circle"></i>
+          Guardar cambios
+        </button>
+      </div>
+
+    </form>
+
+  </section>
+
+</main>
+{% endblock %}

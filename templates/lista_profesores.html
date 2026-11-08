@@ -1,15 +1,28 @@
-{% extends "base_psicologa.html" %}
-
-{% block titulo %}Profesores registrados{% endblock %}
-
-{% block contenido %}
+{% extends "base_psicologa.html" %} {% block titulo %}Profesores registrados{%
+endblock %} {% block contenido %}
 <main class="contenido">
   <h2>Profesores registrados</h2>
   <p class="subtitulo">Tutores que pueden solicitar citas</p>
 
+  {% with mensajes = get_flashed_messages(with_categories=true) %} {% for
+  categoria, mensaje in mensajes %}
+  <div class="aviso aviso-{{ categoria }}">{{ mensaje }}</div>
+  {% endfor %} {% endwith %}
+
+  <div style="margin-bottom: 18px">
+    <a href="{{ url_for('registrar_tutor') }}" class="btn btn-azul">
+      <i class="bi bi-person-plus"></i>
+      Registrar tutor
+    </a>
+  </div>
+
   <div class="barra-buscar">
     <i class="bi bi-search"></i>
-    <input type="search" id="buscador" placeholder="Buscar por nombre, correo o grupo...">
+    <input
+      type="search"
+      id="buscador"
+      placeholder="Buscar por nombre, correo o grupo..."
+    />
   </div>
 
   <section class="caja">
@@ -20,22 +33,70 @@
             <th>Nombre</th>
             <th>Correo</th>
             <th>Teléfono</th>
-            <th>Grupo a cargo</th>
+            <th>Cuatrimestre</th>
+            <th>Grupo</th>
+            <th>Carrera</th>
             <th>Alumnos</th>
+            <th>Acciones</th>
           </tr>
         </thead>
+
         <tbody id="tabla-datos">
           {% for t in tutores %}
           <tr>
             <td>{{ t.nombre }}</td>
             <td>{{ t.correo }}</td>
-            <td>{{ t.telefono }}</td>
-            <td>{{ t.grupos or '—' }}</td>
+            <td>{{ t.telefono or '—' }}</td>
+            <td>{{ t.cuatrimestre or '—' }}</td>
+            <td>{{ t.grupo or '—' }}</td>
+            <td>{{ t.carrera or '—' }}</td>
             <td>{{ t.total_alumnos }}</td>
+
+            <td>
+              <div style="display: flex; gap: 8px; align-items: center">
+                <!-- Editar tutor -->
+                <a
+                  href="{{ url_for('editar_tutor', id_tutor=t.id_tutor) }}"
+                  class="btn btn-azul"
+                  title="Editar tutor"
+                  aria-label="Editar tutor {{ t.nombre }}"
+                >
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+
+                <!-- Eliminar tutor -->
+                <form
+                  action="{{ url_for('eliminar_tutor', id_tutor=t.id_tutor) }}"
+                  method="post"
+                  onsubmit="
+                    return confirm(
+                      '¿Estás seguro de que deseas eliminar este tutor? Esta acción no se puede deshacer.',
+                    );
+                  "
+                >
+                  <input
+                    type="hidden"
+                    name="_csrf_token"
+                    value="{{ session.get('_csrf_token', '') }}"
+                  />
+
+                  <button
+                    type="submit"
+                    class="btn"
+                    style="background-color: #dc3545; color: white"
+                    title="Eliminar tutor"
+                    aria-label="Eliminar tutor {{ t.nombre }}"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </td>
           </tr>
+
           {% else %}
           <tr>
-            <td colspan="5">Todavía no hay tutores registrados.</td>
+            <td colspan="8">Todavía no hay tutores registrados.</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -43,9 +104,7 @@
     </div>
   </section>
 </main>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
   const buscador = document.getElementById("buscador");
   const filas = document.querySelectorAll("#tabla-datos tr");
@@ -53,7 +112,9 @@
   buscador.addEventListener("input", function () {
     const texto = buscador.value.toLowerCase();
     filas.forEach(function (fila) {
-      fila.style.display = fila.textContent.toLowerCase().includes(texto) ? "" : "none";
+      fila.style.display = fila.textContent.toLowerCase().includes(texto)
+        ? ""
+        : "none";
     });
   });
 </script>

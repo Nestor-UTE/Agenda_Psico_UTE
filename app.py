@@ -5,6 +5,8 @@ from models.tutor import Tutor
 from functools import wraps
 from models.cita import Cita
 from datetime import datetime
+from secrets import token_urlsafe
+from hmac import compare_digest
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -138,11 +140,267 @@ def lista_alumnos():
     return render_template("lista_alumnos.html", pagina="alumnos")
 
 
+
 @app.route("/panel-psicologa/profesores")
 @login_requerido("psicologa")
 def profesores():
+
+    # Crear un token de seguridad para la sesión
+    if "_csrf_token" not in session:
+        session["_csrf_token"] = token_urlsafe(32)
+
     tutores = Tutor.obtener_resumen()
-    return render_template("lista_profesores.html", pagina="profesores", tutores=tutores)
+
+    return render_template(
+        "lista_profesores.html",
+        pagina="profesores",
+        tutores=tutores
+    )
+
+
+
+@app.route("/panel-psicologa/registrar-tutor", methods=["GET", "POST"])
+@login_requerido("psicologa")
+def registrar_tutor():
+
+
+    # Crear un token CSRF si todavía no existe
+    if "_csrf_token" not in session:
+        session["_csrf_token"] = token_urlsafe(32)
+
+    # Verificar el token antes de registrar
+    if request.method == "POST":
+        token_recibido = request.form.get("_csrf_token", "")
+        token_esperado = session.get("_csrf_token")
+
+        if not token_esperado or not compare_digest(
+            token_recibido, token_esperado
+        ):
+            flash("Solicitud no autorizada. Intenta nuevamente", "error")
+            return redirect(url_for("registrar_tutor"))
+
+
+    # Mostrar el formulario
+    if request.method == "GET":
+        return render_template(
+            "registrar_tutor.html",
+            pagina="profesores",
+            datos={}
+        )
+
+    # Obtener los datos del formulario
+    nombre = request.form.get("nombre", "").strip()
+    correo = request.form.get("correo", "").strip().lower()
+    telefono = request.form.get("telefono", "").strip()
+    contrasena = request.form.get("contrasena", "")
+    cuatrimestre = request.form.get("cuatrimestre", "").strip()
+    grupo = request.form.get("grupo", "").strip().upper()
+    carrera = request.form.get("carrera", "").strip()
+
+    error = None
+
+    # Validar los datos recibidos
+    if not nombre or len(nombre) > 45:
+        error = "El nombre es obligatorio (máximo 45 caracteres)"
+
+    elif not correo or len(correo) > 45 or "@" not in correo:
+        error = "Ingresa un correo electrónico válido"
+
+    elif telefono and (
+        not telefono.isascii()
+        or not telefono.isdigit()
+        or not 10 <= len(telefono) <= 15
+    ):
+        error = "El teléfono debe tener entre 10 y 15 números"
+
+    elif not cuatrimestre.isascii() or not cuatrimestre.isdigit():
+        error = "El cuatrimestre debe ser un número"
+
+    elif not 1 <= int(cuatrimestre) <= 11:
+        error = "El cuatrimestre debe estar entre 1 y 11"
+
+    elif not grupo or len(grupo) > 10:
+        error = "El grupo es obligatorio (máximo 10 caracteres)"
+
+    elif not carrera or len(carrera) > 100:
+        error = "La carrera es obligatoria (máximo 100 caracteres)"
+
+    elif not 8 <= len(contrasena) <= 128:
+        error = "La contraseña debe tener entre 8 y 128 caracteres"
+
+    elif Tutor.buscar_por_correo(correo) is not None:
+        error = "Ya existe un tutor registrado con ese correo"
+
+    # Si los datos son correctos, crear el tutor
+    if error is None:
+
+        tutor = Tutor.nuevo(
+            nombre=nombre,
+            telefono=telefono or None,
+            correo=correo,
+            contrasena_plana=contrasena,
+            cuatrimestre=int(cuatrimestre),
+            grupo=grupo,
+            carrera=carrera
+        )
+
+        if tutor.guardar():
+            flash("Tutor registrado correctamente", "ok")
+            return redirect(url_for("registrar_tutor"))
+
+        error = "No se pudo registrar el tutor. Revisa la conexión con MariaDB"
+
+    # Mostrar el error sin borrar los datos del formulario
+    flash(error, "error")
+
+    return render_template(
+        "registrar_tutor.html",
+        pagina="profesores",
+        datos=request.form
+    )
+
+@app.route("/panel-psicologa/editar-tutor/<int:id_tutor>", methods=["GET", "POST"])
+@login_requerido("psicologa")
+def editar_tutor(id_tutor):
+
+    # Crear un token CSRF si todavía no existe
+    if "_csrf_token" not in session:
+        session["_csrf_token"] = token_urlsafe(32)
+
+    # Verificar el token antes de actualizar
+    if request.method == "POST":
+        token_recibido = request.form.get("_csrf_token", "")
+        token_esperado = session.get("_csrf_token")
+
+        if not token_esperado or not compare_digest(
+            token_recibido, token_esperado
+        ):
+            flash("Solicitud no autorizada. Intenta nuevamente", "error")
+            return redirect(
+                url_for("editar_tutor", id_tutor=id_tutor)
+            )
+
+    tutor = Tutor.buscar_por_id(id_tutor)
+
+    if tutor is None:
+        flash("Tutor no encontrado", "error")
+        return redirect(url_for("profesores"))
+
+    if request.method == "GET":
+        datos = {
+            "nombre": tutor.nombre,
+            "correo": tutor.correo,
+            "telefono": tutor.telefono,
+            "cuatrimestre": tutor.cuatrimestre,
+            "grupo": tutor.grupo,
+            "carrera": tutor.carrera
+        }
+
+        return render_template(
+            "editar_tutor.html",
+            pagina="profesores",
+            id_tutor=id_tutor,
+            datos=datos
+        )
+
+    nombre = request.form.get("nombre", "").strip()
+    correo = request.form.get("correo", "").strip().lower()
+    telefono = request.form.get("telefono", "").strip()
+    cuatrimestre = request.form.get("cuatrimestre", "").strip()
+    grupo = request.form.get("grupo", "").strip().upper()
+    carrera = request.form.get("carrera", "").strip()
+
+    error = None
+
+    if not nombre or len(nombre) > 45:
+        error = "El nombre es obligatorio (máximo 45 caracteres)"
+
+    elif not correo or len(correo) > 45 or "@" not in correo:
+        error = "Ingresa un correo electrónico válido"
+
+    elif telefono and (
+        not telefono.isascii()
+        or not telefono.isdigit()
+        or not 10 <= len(telefono) <= 15
+    ):
+        error = "El teléfono debe tener entre 10 y 15 números"
+
+    elif not cuatrimestre.isascii() or not cuatrimestre.isdigit():
+        error = "El cuatrimestre debe ser un número"
+
+    elif not 1 <= int(cuatrimestre) <= 11:
+        error = "El cuatrimestre debe estar entre 1 y 11"
+
+    elif not grupo or len(grupo) > 10:
+        error = "El grupo es obligatorio (máximo 10 caracteres)"
+
+    elif not carrera or len(carrera) > 100:
+        error = "La carrera es obligatoria (máximo 100 caracteres)"
+
+    else:
+        existente = Tutor.buscar_por_correo(correo)
+        if existente is not None and existente.id_tutor != id_tutor:
+            error = "Ya existe otro tutor registrado con ese correo"
+
+    if error is None:
+        tutor.nombre = nombre
+        tutor.correo = correo
+        tutor.telefono = telefono or None
+        tutor.cuatrimestre = int(cuatrimestre)
+        tutor.grupo = grupo
+        tutor.carrera = carrera
+
+        if tutor.actualizar():
+            flash("Tutor actualizado correctamente", "ok")
+            return redirect(url_for("profesores"))
+
+        error = "No se pudo actualizar el tutor. Revisa la conexión con MariaDB"
+
+    flash(error, "error")
+
+    return render_template(
+        "editar_tutor.html",
+        pagina="profesores",
+        id_tutor=id_tutor,
+        datos=request.form
+    )
+
+
+@app.route("/panel-psicologa/eliminar-tutor/<int:id_tutor>", methods=["POST"])
+@login_requerido("psicologa")
+def eliminar_tutor(id_tutor):
+    """Elimina un tutor si no tiene alumnos ni citas relacionadas."""
+
+    # Verificar el token de seguridad
+    token_recibido = request.form.get("_csrf_token", "")
+    token_esperado = session.get("_csrf_token")
+
+    if not token_esperado or not compare_digest(
+        token_recibido, token_esperado
+    ):
+        flash("Solicitud no autorizada. Intenta nuevamente", "error")
+        return redirect(url_for("profesores"))
+
+
+    # Verificar que el tutor exista
+    tutor = Tutor.buscar_por_id(id_tutor)
+
+    if tutor is None:
+        flash("El tutor no existe o ya fue eliminado", "error")
+        return redirect(url_for("profesores"))
+
+    # Intentar eliminar el tutor
+    eliminado, mensaje = Tutor.eliminar_por_id(id_tutor)
+
+    if eliminado:
+        flash(mensaje, "ok")
+    else:
+        flash(mensaje, "error")
+
+    # Regresar a la lista de profesores
+    return redirect(url_for("profesores"))
+
+
 
 
 @app.route("/panel-profesor")
