@@ -1,66 +1,173 @@
-{% extends "base_profesor.html" %}
-
-{% block titulo %}Solicitar cita{% endblock %}
-
-{% block contenido %}
+{% extends "base_profesor.html" %} {% block titulo %}Solicitar cita{% endblock
+%} {% block contenido %}
 <main class="contenido">
   <h2>Solicitar cita</h2>
-  <p class="subtitulo">Escribe los datos del alumno. La psicóloga te asignará fecha y hora según su agenda</p>
+  <p class="subtitulo">
+    Escribe los datos del alumno. La psicóloga te asignará fecha y hora según su
+    agenda
+  </p>
 
-  {% with mensajes = get_flashed_messages(with_categories=true) %}
-    {% for categoria, mensaje in mensajes %}
-    <div class="aviso aviso-{{ categoria }}">{{ mensaje }}</div>
-    {% endfor %}
-  {% endwith %}
+  {% if folio_generado %}
+  <div class="aviso aviso-ok">
+    <strong>¡Solicitud enviada correctamente!</strong>
+    <p>
+      Folio de la cita:
+      <strong id="folio-generado">{{ folio_generado }}</strong>
+    </p>
+
+    <button
+      type="button"
+      class="btn btn-azul"
+      onclick="copiarFolioGenerado(this)"
+    >
+      <i class="bi bi-clipboard"></i>
+      Copiar folio
+    </button>
+  </div>
+  {% endif %} {% with mensajes = get_flashed_messages(with_categories=true) %}
+
+
+{% for categoria, mensaje in mensajes %}
+    <div class="aviso aviso-{{ categoria }}">
+        {{ mensaje }}
+    </div>
+{% endfor %}
+{% endwith %}
 
   <section class="caja">
-    <form action="{{ url_for('solicitar_cita') }}" method="post" class="form-cita" autocomplete="off">
-
+    <form
+      action="{{ url_for('solicitar_cita') }}"
+      method="post"
+      class="form-cita"
+      autocomplete="off"
+    >
       <div>
         <label for="matricula">Matrícula</label>
-        <input type="text" id="matricula" name="matricula" inputmode="numeric" pattern="[0-9]{6,9}" maxlength="9" value="{{ datos.get('matricula', '') }}" required>
+        <input
+          type="text"
+          id="matricula"
+          name="matricula"
+          inputmode="numeric"
+          pattern="[0-9]{6,9}"
+          maxlength="9"
+          value="{{ datos.get('matricula', '') }}"
+          required
+        />
       </div>
 
       <div>
         <label for="carrera">Carrera</label>
-        <input type="text" id="carrera" name="carrera" maxlength="45" placeholder="Ej. TIC" value="{{ datos.get('carrera', '') }}" required>
+        <input
+          type="text"
+          id="carrera"
+          name="carrera"
+          maxlength="45"
+          placeholder="Ej. TIC"
+          value="{{ datos.get('carrera', '') }}"
+          required
+        />
       </div>
 
       <div>
         <label for="grado">Grado</label>
-        <input type="number" id="grado" name="grado" min="1" max="11" value="{{ datos.get('grado', '') }}" required>
+        <input
+          type="number"
+          id="grado"
+          name="grado"
+          min="1"
+          max="11"
+          value="{{ datos.get('grado', '') }}"
+          required
+        />
       </div>
 
       <div>
         <label for="grupo">Grupo</label>
-        <input type="text" id="grupo" name="grupo" maxlength="2" placeholder="Ej. A" value="{{ datos.get('grupo', '') }}" required>
+        <input
+          type="text"
+          id="grupo"
+          name="grupo"
+          maxlength="2"
+          placeholder="Ej. A"
+          value="{{ datos.get('grupo', '') }}"
+          required
+        />
       </div>
 
       <div>
         <label for="nombre">Nombre(s)</label>
-        <input type="text" id="nombre" name="nombre" maxlength="45" value="{{ datos.get('nombre', '') }}" required>
+        <input
+          type="text"
+          id="nombre"
+          name="nombre"
+          maxlength="45"
+          value="{{ datos.get('nombre', '') }}"
+          required
+        />
       </div>
 
       <div>
         <label for="a_paterno">Apellido paterno</label>
-        <input type="text" id="a_paterno" name="a_paterno" maxlength="45" value="{{ datos.get('a_paterno', '') }}" required>
+        <input
+          type="text"
+          id="a_paterno"
+          name="a_paterno"
+          maxlength="45"
+          value="{{ datos.get('a_paterno', '') }}"
+          required
+        />
       </div>
 
       <div>
         <label for="a_materno">Apellido materno</label>
-        <input type="text" id="a_materno" name="a_materno" maxlength="45" value="{{ datos.get('a_materno', '') }}">
+        <input
+          type="text"
+          id="a_materno"
+          name="a_materno"
+          maxlength="45"
+          value="{{ datos.get('a_materno', '') }}"
+        />
       </div>
 
       <div class="ancho-completo">
         <label for="motivo">Motivo de la cita</label>
-        <textarea id="motivo" name="motivo" rows="4" maxlength="255" placeholder="Describe brevemente por qué solicitas la cita" required>{{ datos.get('motivo', '') }}</textarea>
+        <textarea
+          id="motivo"
+          name="motivo"
+          rows="4"
+          maxlength="255"
+          placeholder="Describe brevemente por qué solicitas la cita"
+          required
+        >
+{{ datos.get('motivo', '') }}</textarea
+        >
       </div>
 
       <div class="ancho-completo">
         <button type="submit" class="btn btn-azul">Enviar solicitud</button>
       </div>
-
     </form>
   </section>
 </main>
+{% endblock %} {% block scripts %}
+<script>
+  async function copiarFolioGenerado(boton) {
+    const elemento = document.getElementById("folio-generado");
+
+    if (!elemento) {
+      return;
+    }
+
+    const folio = elemento.textContent.trim();
+
+    try {
+      await navigator.clipboard.writeText(folio);
+
+      boton.innerHTML = '<i class="bi bi-check-circle"></i> ¡Copiado!';
+    } catch (error) {
+      console.error("Error al copiar el folio:", error);
+      alert("No se pudo copiar el folio. Intenta nuevamente.");
+    }
+  }
+</script>
 {% endblock %}

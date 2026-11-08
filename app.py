@@ -419,13 +419,19 @@ def solicitar_cita():
     if error is None:
         folio, error = Cita.solicitar(session["id"], motivo, alumno)
 
+
     if error:
         # Se vuelve a mostrar el formulario con lo que escribió, para que no lo capture de nuevo
         flash(error, "error")
         return render_template("solicitar_cita.html", pagina="solicitar", datos=request.form)
+    
+    return render_template(
+        "solicitar_cita.html",
+        pagina="solicitar",
+        datos={},
+        folio_generado=folio
+    )
 
-    flash(f"Solicitud enviada. Folio de la cita: {folio}", "ok")
-    return redirect(url_for("solicitar_cita"))
 
 
 @app.route("/panel-profesor/mis-alumnos")
