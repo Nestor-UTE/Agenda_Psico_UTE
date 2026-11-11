@@ -587,7 +587,10 @@ th {
 .form-cita input:focus,
 .form-cita select:focus,
 .form-cita textarea:focus {
-  border-color: #6a9fdc;
+  border-color: #3266a8;
+  background-color: #ffffff;
+  outline: 2px solid #3266a8;
+  outline-offset: 2px;
 }
 
 a.btn {
@@ -680,4 +683,12 @@ a.btn {
 .aviso-error {
   background: #f8e3e3;
   color: #b04545;
+}
+/* Textos de ayuda en formularios */
+.texto-ayuda {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #526174;
+    line-height: 1.4;
 }

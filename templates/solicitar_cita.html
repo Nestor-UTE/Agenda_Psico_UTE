@@ -8,11 +8,15 @@
   </p>
 
   {% if folio_generado %}
-  <div class="aviso aviso-ok">
+  <div class="aviso aviso-ok" role="status">
     <strong>¡Solicitud enviada correctamente!</strong>
     <p>
       Folio de la cita:
       <strong id="folio-generado">{{ folio_generado }}</strong>
+    </p>
+    <p>
+      Guarda este folio y compártelo con el alumno para que pueda consultar el
+      estado de su cita.
     </p>
 
     <button
@@ -25,14 +29,9 @@
     </button>
   </div>
   {% endif %} {% with mensajes = get_flashed_messages(with_categories=true) %}
-
-
-{% for categoria, mensaje in mensajes %}
-    <div class="aviso aviso-{{ categoria }}">
-        {{ mensaje }}
-    </div>
-{% endfor %}
-{% endwith %}
+  {% for categoria, mensaje in mensajes %}
+  <div class="aviso aviso-{{ categoria }}">{{ mensaje }}</div>
+  {% endfor %} {% endwith %}
 
   <section class="caja">
     <form
@@ -40,6 +39,7 @@
       method="post"
       class="form-cita"
       autocomplete="off"
+      onsubmit="return confirm('¿Deseas enviar esta solicitud de cita?');"
     >
       <div>
         <label for="matricula">Matrícula</label>
@@ -52,7 +52,11 @@
           maxlength="9"
           value="{{ datos.get('matricula', '') }}"
           required
+          aria-describedby="ayuda-matricula"
         />
+        <small id="ayuda-matricula" class="texto-ayuda">
+          Ingresa la matrícula del alumno.
+        </small>
       </div>
 
       <div>
@@ -69,7 +73,7 @@
       </div>
 
       <div>
-        <label for="grado">Grado</label>
+        <label for="grado">Cuatrimestre</label>
         <input
           type="number"
           id="grado"
@@ -136,7 +140,7 @@
           name="motivo"
           rows="4"
           maxlength="255"
-          placeholder="Describe brevemente por qué solicitas la cita"
+          placeholder="Explica brevemente el motivo de la cita, sin incluir detalles personales innecesarios."
           required
         >
 {{ datos.get('motivo', '') }}</textarea

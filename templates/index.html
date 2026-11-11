@@ -1,88 +1,260 @@
+
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iniciar sesión | Agenda Psico UTE</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Iniciar sesión | PsicoUTE</title>
+
+    <link rel="stylesheet"
+        href="{{ url_for('static', filename='css/login.css') }}">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
-  <main class="pantalla">
 
-    <!-- Lado izquierdo: logo y eslogan -->
-    <section class="lado-marca">
-      <img class="logo" src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo Agenda Psico UTE">
-      <p class="eslogan">Tu espacio, tu proceso, tu tiempo</p>
-    </section>
+    <main class="pantalla">
 
-    <!-- Lado derecho: tarjeta de login -->
-    <section class="tarjeta">
-      <h1>Iniciar sesión</h1>
-      {% with mensajes = get_flashed_messages() %}
-        {% if mensajes %}
-        <div class="alerta-error">
-          <i class="bi bi-exclamation-circle"></i>
-          <span>{{ mensajes[0] }}</span>
-        </div>
-        {% endif %}
-      {% endwith %}
-      <form action="/login" method="post">
+        <!-- SECCIÓN IZQUIERDA: IDENTIDAD -->
+        <section class="lado-marca">
 
-        <div class="roles">
-          <input type="radio" name="rol" id="rol-tutor" value="tutor" checked>
-          <label for="rol-tutor">Tutor</label>
+            <img
+                class="logo"
+                src="{{ url_for('static', filename='img/logo2.png') }}"
+                alt="Logo de PsicoUTE">
 
-          <input type="radio" name="rol" id="rol-psicologa" value="psicologa">
-          <label for="rol-psicologa">Psicóloga</label>
-        </div>
+            <div class="eslogan">
+                Tu espacio, tu proceso, tu tiempo
+            </div>
 
-        <div class="campo">
-          <i class="bi bi-person"></i>
-          <input type="text" name="usuario" placeholder="Correo o usuario" required>
-        </div>
+            <p class="descripcion-marca">
+                Sistema para la gestión de citas y seguimiento
+                psicológico universitario.
+            </p>
 
-        <div class="campo">
-          <i class="bi bi-lock"></i>
-          <input type="password" name="password" id="password" placeholder="Contraseña" required>
-          <button type="button" class="ojo" id="btn-ojo">
-            <i class="bi bi-eye-slash"></i>
-          </button>
-        </div>
+            <div class="decoracion-marca">
+                <span></span>
+                <i class="bi bi-flower1"></i>
+                <span></span>
+            </div>
 
-        <button type="submit" class="btn-entrar">Entrar</button>
-      </form>
+        </section>
 
-      <!-- Acceso del alumno -->
-      <div class="separador"><span>o</span></div>
 
-      <form action="/folio" method="post" class="folio-box">
-        <p>¿Eres alumno? ¿Quieres revisar tu progreso? Escribe tu folio aquí</p>
-        <div class="folio-campo">
-          <input type="text" name="folio" placeholder="Folio" required>
-          <button type="submit">Consultar</button>
-        </div>
-      </form>
-    </section>
+        <!-- SECCIÓN DERECHA: INICIO DE SESIÓN -->
+        <section class="tarjeta">
 
-  </main>
+            <header class="encabezado-login">
+                <h1>Iniciar sesión</h1>
 
-  <script>
-    const campoPassword = document.getElementById("password");
-    const botonOjo = document.getElementById("btn-ojo");
-    const iconoOjo = botonOjo.querySelector("i");
+                <p>
+                    Accede como tutor o psicóloga para continuar.
+                </p>
+            </header>
 
-    botonOjo.addEventListener("click", function () {
-      if (campoPassword.type === "password") {
-        campoPassword.type = "text";
-        iconoOjo.className = "bi bi-eye";
-      } else {
-        campoPassword.type = "password";
-        iconoOjo.className = "bi bi-eye-slash";
-      }
-    });
-  </script>
+
+            <!-- MENSAJES DE ERROR -->
+            {% with mensajes = get_flashed_messages() %}
+                {% if mensajes %}
+                    <div class="alerta-error" role="alert">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>{{ mensajes[0] }}</span>
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+
+            <!-- FORMULARIO LOGIN -->
+            <form action="/login" method="post">
+
+                <!-- SELECCIÓN DE ROL -->
+                <div class="roles">
+
+                    <input
+                        type="radio"
+                        name="rol"
+                        id="rol-tutor"
+                        value="tutor"
+                        checked>
+
+                    <label for="rol-tutor">
+                        Tutor
+                    </label>
+
+                    <input
+                        type="radio"
+                        name="rol"
+                        id="rol-psicologa"
+                        value="psicologa">
+
+                    <label for="rol-psicologa">
+                        Psicóloga
+                    </label>
+
+                </div>
+
+
+                <!-- USUARIO -->
+                <div class="grupo-campo">
+
+                    <label for="usuario">
+                        Correo o usuario
+                    </label>
+
+                    <div class="campo">
+
+                        <i class="bi bi-person"></i>
+
+                        <input
+                            type="text"
+                            id="usuario"
+                            name="usuario"
+                            placeholder="Correo o usuario"
+                            autocomplete="username"
+                            required>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CONTRASEÑA -->
+                <div class="grupo-campo">
+
+                    <label for="password">
+                        Contraseña
+                    </label>
+
+                    <div class="campo">
+
+                        <i class="bi bi-lock"></i>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Contraseña"
+                            autocomplete="current-password"
+                            required>
+
+                        <button
+                            type="button"
+                            class="ojo"
+                            id="btn-ojo"
+                            aria-label="Mostrar contraseña"
+                            aria-pressed="false">
+
+                            <i class="bi bi-eye-slash"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BOTÓN ENTRAR -->
+                <button type="submit" class="btn-entrar">
+                    Entrar
+                </button>
+
+            </form>
+
+
+            <!-- SEPARADOR -->
+            <div class="separador"></div>
+
+
+            <!-- CONSULTA PARA ALUMNOS -->
+            <section class="folio-box">
+
+                <div class="folio-encabezado">
+
+                    <i class="bi bi-calendar-check"></i>
+
+                    <div>
+                        <h2>Consulta tu cita con folio</h2>
+
+                        <p>
+                            Si eres alumno, escribe tu folio para
+                            revisar el estado de tu cita.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <form action="/folio" method="post">
+
+                    <div class="folio-campo">
+
+                        <label for="folio" class="sr-only">
+                            Folio de la cita
+                        </label>
+
+                        <input
+                            type="text"
+                            id="folio"
+                            name="folio"
+                            placeholder="Folio"
+                            maxlength="45"
+                            autocomplete="off"
+                            required>
+
+                        <button type="submit">
+                            Consultar
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+        </section>
+
+    </main>
+
+
+    <!-- MOSTRAR / OCULTAR CONTRASEÑA -->
+    <script>
+
+        const campoPassword = document.getElementById("password");
+        const botonOjo = document.getElementById("btn-ojo");
+        const iconoOjo = botonOjo.querySelector("i");
+
+        botonOjo.addEventListener("click", function () {
+
+            const estaOculta = campoPassword.type === "password";
+
+            campoPassword.type = estaOculta ? "text" : "password";
+
+            iconoOjo.className = estaOculta
+                ? "bi bi-eye"
+                : "bi bi-eye-slash";
+
+            botonOjo.setAttribute(
+                "aria-label",
+                estaOculta ? "Ocultar contraseña" : "Mostrar contraseña"
+            );
+
+            botonOjo.setAttribute(
+                "aria-pressed",
+                String(estaOculta)
+            );
+
+        });
+
+    </script>
+
 </body>
 </html>
