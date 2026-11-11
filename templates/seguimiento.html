@@ -1,110 +1,163 @@
-{% extends "base_psicologa.html" %}
-
-{% block titulo %}Seguimiento{% endblock %}
-
+{% extends "base_psicologa.html" %} {% block titulo %}Seguimiento{% endblock %}
 {% block contenido %}
 <main class="contenido">
   <h2>Seguimiento</h2>
   <p class="subtitulo">Resumen y recomendaciones de los alumnos atendidos</p>
 
+{% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% for categoria, mensaje in mensajes %}
+        <div class="aviso aviso-{{ categoria }}" role="alert">
+            {{ mensaje }}
+        </div>
+    {% endfor %}
+{% endwith %}
+
+
   <div class="barra-buscar">
     <i class="bi bi-search"></i>
-    <input type="search" id="buscador" placeholder="Buscar por alumno o matrícula...">
+    <input
+      type="search"
+      id="buscador"
+      placeholder="Buscar por alumno o matrícula..."
+    />
   </div>
 
   <div class="lista-seguimiento" id="lista-seguimiento">
-
+    {% for s in seguimientos %}
     <article class="tarjeta-seg">
       <header class="tarjeta-seg-cabecera">
         <div>
-          <h3>Alumno de ejemplo 3</h3>
-          <p>0000003 · TIC · Grupo 1C</p>
+          <h3>{{ s.alumno }}</h3>
+          <p>
+            {{ s.matricula }} · {{ s.carrera }} · Grupo {{ s.grado }}{{ s.grupo
+            }}
+          </p>
         </div>
-        <span class="estado estado-realizada">Última sesión: 08/10/2026</span>
+
+        <span class="estado estado-realizada">
+          Última sesión: {{ s.fecha.strftime('%d/%m/%Y') }}
+        </span>
       </header>
 
       <div class="tarjeta-seg-cuerpo">
         <div>
           <h4>Resumen</h4>
-          <p>Resumen de ejemplo de lo que se habló en la sesión.</p>
+          <p>{{ s.resumen }}</p>
         </div>
+
         <div>
           <h4>Recomendación</h4>
-          <p>Recomendación de ejemplo para el alumno.</p>
+          <p>{{ s.recomendacion }}</p>
         </div>
       </div>
 
       <footer class="tarjeta-seg-pie">
-        <div class="campo-inline">
-          <label for="requiere-1">¿Requiere más sesiones?</label>
-          <select id="requiere-1">
-            <option>Por definir</option>
-            <option>Sí</option>
-            <option>No</option>
-          </select>
-        </div>
-        <button type="button" class="btn btn-azul btn-otra-cita" data-alumno="Alumno de ejemplo 3">Agendar otra cita</button>
+        <form
+          action="{{ url_for('guardar_mas_sesiones') }}"
+          method="post"
+          class="campo-inline"
+        >
+          <input type="hidden" name="id_cita" value="{{ s.id_cita }}" />
+
+          <label for="requiere-{{ s.id_cita }}">
+            ¿Requiere más sesiones?
+          </label>
+
+
+    <select
+    id="requiere-{{ s.id_cita }}"
+    name="requiere_mas_sesiones"
+    onchange="this.form.requestSubmit()"
+    >
+    <option value="Por definir"
+        {{ 'selected' if s.requiere_mas_sesiones == 'Por definir' else '' }}>
+        Por definir
+    </option>
+
+    <option value="Sí"
+        {{ 'selected' if s.requiere_mas_sesiones == 'Sí' else '' }}>
+        Sí
+    </option>
+
+    <option value="No"
+        {{ 'selected' if s.requiere_mas_sesiones == 'No' else '' }}>
+        No
+    </option>
+    </select>
+
+        </form>
+
+        <button
+          type="button"
+          class="btn btn-azul btn-otra-cita"
+          data-alumno="{{ s.alumno }}"
+          data-id="{{ s.id_cita }}"
+        >
+          Agendar otra cita
+        </button>
       </footer>
     </article>
 
-    <article class="tarjeta-seg">
-      <header class="tarjeta-seg-cabecera">
-        <div>
-          <h3>Alumno de ejemplo 4</h3>
-          <p>0000004 · TIC · Grupo 2B</p>
-        </div>
-        <span class="estado estado-realizada">Última sesión: 05/10/2026</span>
-      </header>
-
-      <div class="tarjeta-seg-cuerpo">
-        <div>
-          <h4>Resumen</h4>
-          <p>Otro resumen de ejemplo para ver cómo se acomodan varias tarjetas.</p>
-        </div>
-        <div>
-          <h4>Recomendación</h4>
-          <p>Otra recomendación de ejemplo.</p>
-        </div>
-      </div>
-
-      <footer class="tarjeta-seg-pie">
-        <div class="campo-inline">
-          <label for="requiere-2">¿Requiere más sesiones?</label>
-          <select id="requiere-2">
-            <option>Por definir</option>
-            <option>Sí</option>
-            <option>No</option>
-          </select>
-        </div>
-        <button type="button" class="btn btn-azul btn-otra-cita" data-alumno="Alumno de ejemplo 4">Agendar otra cita</button>
-      </footer>
-    </article>
-
+    {% else %}
+    <p>No hay seguimientos registrados todavía.</p>
+    {% endfor %}
   </div>
 </main>
 
 <div class="modal-fondo" id="modal-otra-cita">
-  <div class="modal">
-    <h3>Agendar otra cita</h3>
-    <p class="modal-alumno">Alumno: <strong id="modal-nombre-otra"></strong></p>
+    <div class="modal">
+        <h3>Agendar otra cita</h3>
 
-    <form action="#" method="post">
-      <label for="fecha-otra">Fecha</label>
-      <input type="date" id="fecha-otra" name="fecha" required>
+        <p class="modal-alumno">
+            Alumno:
+            <strong id="modal-nombre-otra"></strong>
+        </p>
 
-      <label for="hora-otra">Hora</label>
-      <input type="time" id="hora-otra" name="hora" required>
+        <form
+            action="{{ url_for('guardar_otra_cita') }}"
+            method="post"
+            id="form-otra-cita"
+        >
+            <input
+                type="hidden"
+                name="id_cita"
+                id="id-cita-otra"
+            >
 
-      <div class="modal-botones">
-        <button type="button" class="btn btn-gris" id="btn-cancelar-otra">Cancelar</button>
-        <button type="submit" class="btn btn-azul">Guardar</button>
-      </div>
-    </form>
-  </div>
+            <label for="fecha-otra">Nueva fecha</label>
+            <input
+                type="date"
+                id="fecha-otra"
+                name="fecha"
+                required
+            >
+
+            <label for="hora-otra">Nueva hora</label>
+            <input
+                type="time"
+                id="hora-otra"
+                name="hora"
+                required
+            >
+
+            <div class="modal-botones">
+                <button
+                    type="button"
+                    class="btn btn-gris"
+                    id="btn-cancelar-otra"
+                >
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn btn-azul">
+                    Guardar cita
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
   /* ---------- Buscador ---------- */
   const buscador = document.getElementById("buscador");
@@ -118,30 +171,39 @@
     });
   });
 
-  /* ---------- Modal Agendar otra cita ---------- */
-  const modalOtra = document.getElementById("modal-otra-cita");
-  const nombreOtra = document.getElementById("modal-nombre-otra");
-  const campoFechaOtra = document.getElementById("fecha-otra");
-  const botonesOtra = document.querySelectorAll(".btn-otra-cita");
-  const cancelarOtra = document.getElementById("btn-cancelar-otra");
+/* ---------- Agendar otra cita ---------- */
 
-  campoFechaOtra.min = new Date().toISOString().split("T")[0];
+const modalOtra = document.getElementById("modal-otra-cita");
+const nombreOtra = document.getElementById("modal-nombre-otra");
+const idCitaOtra = document.getElementById("id-cita-otra");
+const fechaOtra = document.getElementById("fecha-otra");
+const botonesOtra = document.querySelectorAll(".btn-otra-cita");
+const cancelarOtra = document.getElementById("btn-cancelar-otra");
 
-  botonesOtra.forEach(function (boton) {
+botonesOtra.forEach(function (boton) {
     boton.addEventListener("click", function () {
-      nombreOtra.textContent = boton.dataset.alumno;
-      modalOtra.classList.add("abierto");
+
+        nombreOtra.textContent = boton.dataset.alumno;
+
+        idCitaOtra.value = boton.dataset.id;
+
+        fechaOtra.min = new Date(
+            Date.now() - new Date().getTimezoneOffset() * 60000
+        ).toISOString().split("T")[0];
+
+        modalOtra.classList.add("abierto");
     });
-  });
+});
 
-  cancelarOtra.addEventListener("click", function () {
+cancelarOtra.addEventListener("click", function () {
     modalOtra.classList.remove("abierto");
-  });
+});
 
-  modalOtra.addEventListener("click", function (evento) {
+modalOtra.addEventListener("click", function (evento) {
     if (evento.target === modalOtra) {
-      modalOtra.classList.remove("abierto");
+        modalOtra.classList.remove("abierto");
     }
-  });
+});
+
 </script>
 {% endblock %}

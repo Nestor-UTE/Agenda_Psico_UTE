@@ -121,6 +121,11 @@ CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`seguimiento` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+ALTER TABLE seguimiento
+ADD COLUMN requiere_mas_sesiones
+ENUM('Por definir', 'Sí', 'No')
+NOT NULL DEFAULT 'Por definir';
+
 CREATE TABLE ubicacion (
   id_ubicacion INT AUTO_INCREMENT PRIMARY KEY,
   edificio VARCHAR(10) NOT NULL,

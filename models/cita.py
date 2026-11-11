@@ -276,6 +276,234 @@ class Cita:
         finally:
             conexion.close()
 
+    @staticmethod
+    def marcar_realizada(id_cita, resumen, recomendacion):
+        """Marca una cita como realizada y guarda su seguimiento."""
+
+        if not resumen.strip() or not recomendacion.strip():
+            return False
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return False
+
+        try:
+            with conexion.cursor() as cursor:
+
+                # Cambiar el estado de la cita
+                cursor.execute("""
+                    UPDATE cita
+                    SET estatus = 'Realizada'
+                    WHERE id_cita = %s
+                    AND estatus = 'Agendada'
+                """, (id_cita,))
+
+                if cursor.rowcount != 1:
+                    conexion.rollback()
+                    return False
+
+                # Guardar resumen y recomendación
+                cursor.execute("""
+                    INSERT INTO seguimiento
+                        (id_cita, resumen, recomendacion)
+                    VALUES (%s, %s, %s)
+                """, (id_cita, resumen, recomendacion))
+
+            conexion.commit()
+            return True
+
+        except pymysql.MySQLError as error:
+            print(f"Error al marcar cita realizada: {error}")
+            conexion.rollback()
+            return False
+
+        finally:
+            conexion.close()
+
+    
+    @staticmethod
+    def obtener_seguimientos():
+        """Obtiene las citas realizadas con su seguimiento."""
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return []
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("""
+                    SELECT
+                        c.id_cita,
+                        c.fecha,
+                        a.matricula,
+                        a.carrera,
+                        a.grado,
+                        a.grupo,
+                        CONCAT(
+                            a.nombre, ' ',
+                            a.a_paterno, ' ',
+                            a.a_materno
+                        ) AS alumno,
+                        s.resumen,
+                        s.recomendacion,
+                        s.requiere_mas_sesiones
+                    FROM seguimiento s
+                    INNER JOIN cita c
+                        ON c.id_cita = s.id_cita
+                    INNER JOIN alumnos a
+                        ON a.matricula = c.matricula_alumno
+                    WHERE c.estatus = 'Realizada'
+                    ORDER BY c.fecha DESC
+                """)
+
+                return cursor.fetchall()
+
+        except pymysql.MySQLError as error:
+            print(f"Error al obtener seguimientos: {error}")
+            return []
+
+        finally:
+            conexion.close()
+        
+    
+    @staticmethod
+    def actualizar_mas_sesiones(id_cita, respuesta):
+        """Guarda si el alumno requiere más sesiones."""
+
+        if respuesta not in ("Por definir", "Sí", "No"):
+            return False
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return False
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("""
+                    UPDATE seguimiento
+                    SET requiere_mas_sesiones = %s
+                    WHERE id_cita = %s
+                """, (respuesta, id_cita))
+
+                if cursor.rowcount == 0:
+                    cursor.execute(
+                        "SELECT id_cita FROM seguimiento WHERE id_cita = %s",
+                        (id_cita,)
+                    )
+                    if cursor.fetchone() is None:
+                        conexion.rollback()
+                        return False
+
+            conexion.commit()
+            return True
+
+        except pymysql.MySQLError as error:
+            print(f"Error al actualizar más sesiones: {error}")
+            conexion.rollback()
+            return False
+
+        finally:
+            conexion.close()
+
+
+    @staticmethod
+    def agendar_otra_cita(id_cita_anterior, fecha):
+        """Crea una nueva cita para un alumno que ya fue atendido."""
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return None, "No hay conexión con la base de datos"
+
+        try:
+            with conexion.cursor() as cursor:
+
+                # Buscar los datos de la cita anterior
+                cursor.execute("""
+                    SELECT
+                        matricula_alumno,
+                        id_tutor,
+                        id_psicologa,
+                        motivo
+                    FROM cita
+                    WHERE id_cita = %s
+                    AND estatus = 'Realizada'
+                """, (id_cita_anterior,))
+
+                cita_anterior = cursor.fetchone()
+
+                if cita_anterior is None:
+                    return None, "La cita anterior no es válida"
+
+                
+                # Verificar que el horario esté disponible
+                cursor.execute("""
+                    SELECT id_cita
+                    FROM cita
+                    WHERE id_psicologa = %s
+                    AND fecha = %s
+                    AND estatus = 'Agendada'
+                    LIMIT 1
+                """, (
+                    cita_anterior["id_psicologa"],
+                    fecha
+                ))
+
+                if cursor.fetchone() is not None:
+                    return None, "La psicóloga ya tiene una cita en ese horario"
+
+
+                # Crear un folio nuevo
+                for intento in range(5):
+                    folio = secrets.token_hex(4)
+
+                    try:
+                        cursor.execute("""
+                            INSERT INTO cita (
+                                num_folio,
+                                fecha,
+                                estatus,
+                                motivo,
+                                matricula_alumno,
+                                id_tutor,
+                                id_psicologa
+                            )
+                            VALUES (
+                                %s, %s, 'Agendada',
+                                %s, %s, %s, %s
+                            )
+                        """, (
+                            folio,
+                            fecha,
+                            "Sesión de seguimiento",
+                            cita_anterior["matricula_alumno"],
+                            cita_anterior["id_tutor"],
+                            cita_anterior["id_psicologa"]
+                        ))
+
+                        conexion.commit()
+                        return folio, None
+
+                    except pymysql.err.IntegrityError as error:
+                        if error.args[0] != 1062:
+                            raise
+
+                conexion.rollback()
+                return None, "No se pudo generar un folio"
+
+        except pymysql.MySQLError as error:
+            print(f"Error al agendar otra cita: {error}")
+            conexion.rollback()
+            return None, "No se pudo agendar la cita"
+
+        finally:
+            conexion.close()
+
+
+
 if __name__ == "__main__":
     nueva = Cita("F001", "2026-10-15 10:00:00", "Pendiente", "Primera cita", "2024001", 2, 1)
     print("Guardado:", nueva.guardar())

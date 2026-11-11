@@ -122,10 +122,100 @@ def agenda():
     citas = Cita.obtener_agenda()
     return render_template("agenda.html", pagina="agenda", citas=citas)
 
+
+@app.route("/panel-psicologa/cita/realizada", methods=["POST"])
+@login_requerido("psicologa")
+def marcar_cita_realizada():
+    try:
+        id_cita = int(request.form.get("id_cita", ""))
+    except (ValueError, TypeError):
+        flash("La cita seleccionada no es válida", "error")
+        return redirect(url_for("agenda"))
+
+    resumen = request.form.get("resumen", "").strip()
+    recomendacion = request.form.get("recomendacion", "").strip()
+
+    if not resumen or not recomendacion:
+        flash("Completa el resumen y la recomendación", "error")
+        return redirect(url_for("agenda"))
+
+    if Cita.marcar_realizada(id_cita, resumen, recomendacion):
+        flash("Cita marcada como realizada correctamente", "ok")
+    else:
+        flash("No se pudo guardar el seguimiento de la cita", "error")
+
+    return redirect(url_for("agenda"))
+
+
+
 @app.route("/panel-psicologa/seguimiento")
 @login_requerido("psicologa")
 def seguimiento():
-    return render_template("seguimiento.html", pagina="seguimiento")
+    seguimientos = Cita.obtener_seguimientos()
+
+    return render_template(
+        "seguimiento.html",
+        pagina="seguimiento",
+        seguimientos=seguimientos
+    )
+
+
+@app.route("/panel-psicologa/seguimiento/mas-sesiones", methods=["POST"])
+@login_requerido("psicologa")
+def guardar_mas_sesiones():
+    try:
+        id_cita = int(request.form.get("id_cita", ""))
+    except (ValueError, TypeError):
+        flash("La cita seleccionada no es válida", "error")
+        return redirect(url_for("seguimiento"))
+
+    respuesta = request.form.get("requiere_mas_sesiones", "")
+
+    if Cita.actualizar_mas_sesiones(id_cita, respuesta):
+        flash("Decisión guardada correctamente", "ok")
+    else:
+        flash("No se pudo guardar la decisión", "error")
+
+    return redirect(url_for("seguimiento"))
+
+
+@app.route("/panel-psicologa/seguimiento/otra-cita", methods=["POST"])
+@login_requerido("psicologa")
+def guardar_otra_cita():
+    try:
+        id_cita = int(request.form.get("id_cita", ""))
+    except (ValueError, TypeError):
+        flash("La cita seleccionada no es válida", "error")
+        return redirect(url_for("seguimiento"))
+
+    fecha = request.form.get("fecha", "").strip()
+    hora = request.form.get("hora", "").strip()
+
+    if not fecha or not hora:
+        flash("Debes seleccionar una fecha y hora", "error")
+        return redirect(url_for("seguimiento"))
+
+    try:
+        fecha_cita = datetime.strptime(
+            f"{fecha} {hora}", "%Y-%m-%d %H:%M"
+        )
+    except ValueError:
+        flash("La fecha u hora no es válida", "error")
+        return redirect(url_for("seguimiento"))
+
+    if fecha_cita <= datetime.now():
+        flash("La nueva cita debe tener una fecha futura", "error")
+        return redirect(url_for("seguimiento"))
+
+    folio, error = Cita.agendar_otra_cita(id_cita, fecha_cita)
+
+    if error:
+        flash(error, "error")
+    else:
+        flash(f"Nueva cita agendada. Folio: {folio}", "ok")
+
+    return redirect(url_for("seguimiento"))
+
 
 @app.route("/panel-psicologa/historial")
 @login_requerido("psicologa")
@@ -470,6 +560,8 @@ def consultar_folio():
         cita["hora"] = fecha.strftime("%H:%M")
 
     return render_template("alumno.html", folio=folio, cita=cita)
+
+    
 
 @app.route("/login", methods=["POST"])
 def login():

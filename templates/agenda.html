@@ -1,15 +1,16 @@
-{% extends "base_psicologa.html" %}
-
-{% block titulo %}Agenda / Cita{% endblock %}
-
-{% block contenido %}
+{% extends "base_psicologa.html" %} {% block titulo %}Agenda / Cita{% endblock
+%} {% block contenido %}
 <main class="contenido">
   <h2>Agenda / Cita</h2>
   <p class="subtitulo">Citas ya agendadas con fecha y hora</p>
 
   <div class="barra-buscar">
     <i class="bi bi-search"></i>
-    <input type="search" id="buscador" placeholder="Buscar por alumno, matrícula, tutor o fecha...">
+    <input
+      type="search"
+      id="buscador"
+      placeholder="Buscar por alumno, matrícula, tutor o fecha..."
+    />
   </div>
 
   <section class="caja">
@@ -36,10 +37,27 @@
             <td>{{ c.matricula }}</td>
             <td>{{ c.grupo }}</td>
             <td>{{ c.tutor }}</td>
-            <td><span class="estado estado-{{ c.estatus|lower }}">{{ c.estatus }}</span></td>
+            <td>
+              <span class="estado estado-{{ c.estatus|lower }}"
+                >{{ c.estatus }}</span
+              >
+            </td>
             <td class="acciones">
-              <button type="button" class="btn btn-azul btn-realizada" data-alumno="{{ c.alumno }}">Realizada</button>
-              <button type="button" class="btn btn-gris btn-reprogramar" data-alumno="{{ c.alumno }}">Reprogramar</button>
+              <button
+                type="button"
+                class="btn btn-azul btn-realizada"
+                data-id="{{ c.id_cita }}"
+                data-alumno="{{ c.alumno }}"
+              >
+                Realizada
+              </button>
+              <button
+                type="button"
+                class="btn btn-gris btn-reprogramar"
+                data-alumno="{{ c.alumno }}"
+              >
+                Reprogramar
+              </button>
             </td>
           </tr>
           {% else %}
@@ -56,17 +74,22 @@
 <div class="modal-fondo" id="modal-reprogramar">
   <div class="modal">
     <h3>Reprogramar cita</h3>
-    <p class="modal-alumno">Alumno: <strong id="modal-nombre-repro"></strong></p>
+    <p class="modal-alumno">
+      Alumno: <strong id="modal-nombre-repro"></strong>
+    </p>
 
-    <form action="#" method="post">
+    <form action="#" method="post" id="form-reprogramar">
+      <input type="hidden" name="id_cita" id="id-cita-reprogramar" />
       <label for="fecha-repro">Nueva fecha</label>
-      <input type="date" id="fecha-repro" name="fecha" required>
+      <input type="date" id="fecha-repro" name="fecha" required />
 
       <label for="hora-repro">Nueva hora</label>
-      <input type="time" id="hora-repro" name="hora" required>
+      <input type="time" id="hora-repro" name="hora" required />
 
       <div class="modal-botones">
-        <button type="button" class="btn btn-gris" id="btn-cancelar-repro">Cancelar</button>
+        <button type="button" class="btn btn-gris" id="btn-cancelar-repro">
+          Cancelar
+        </button>
         <button type="submit" class="btn btn-azul">Guardar</button>
       </div>
     </form>
@@ -78,24 +101,41 @@
     <h3>Cita realizada</h3>
     <p class="modal-alumno">Alumno: <strong id="modal-nombre-real"></strong></p>
 
-    <form action="#" method="post">
+    <form
+      action="{{ url_for('marcar_cita_realizada') }}"
+      method="post"
+      id="form-realizada"
+    >
+      <input type="hidden" name="id_cita" id="id-cita-realizada" />
       <label for="resumen">Resumen de la sesión</label>
-      <textarea id="resumen" name="resumen" rows="4" placeholder="¿Qué se habló en la sesión?" required></textarea>
+      <textarea
+        id="resumen"
+        name="resumen"
+        rows="4"
+        placeholder="¿Qué se habló en la sesión?"
+        required
+      ></textarea>
 
       <label for="recomendacion">Recomendación</label>
-      <textarea id="recomendacion" name="recomendacion" rows="3" placeholder="Sugerencias o acuerdos para el alumno" required></textarea>
+      <textarea
+        id="recomendacion"
+        name="recomendacion"
+        rows="3"
+        placeholder="Sugerencias o acuerdos para el alumno"
+        required
+      ></textarea>
 
       <div class="modal-botones">
-        <button type="button" class="btn btn-gris" id="btn-cancelar-real">Cancelar</button>
+        <button type="button" class="btn btn-gris" id="btn-cancelar-real">
+          Cancelar
+        </button>
         <button type="submit" class="btn btn-azul">Guardar</button>
       </div>
     </form>
   </div>
 </div>
 
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
   /* ---------- Buscador ---------- */
   const buscador = document.getElementById("buscador");
@@ -135,15 +175,22 @@
     }
   });
 
-
- const modalReal = document.getElementById("modal-realizada");
+  const modalReal = document.getElementById("modal-realizada");
   const nombreReal = document.getElementById("modal-nombre-real");
   const botonesReal = document.querySelectorAll(".btn-realizada");
   const cancelarReal = document.getElementById("btn-cancelar-real");
 
+  const idCitaRealizada = document.getElementById("id-cita-realizada");
+
   botonesReal.forEach(function (boton) {
     boton.addEventListener("click", function () {
+      // Obtener el ID de la cita seleccionada
+      idCitaRealizada.value = boton.dataset.id;
+
+      // Mostrar el nombre del alumno
       nombreReal.textContent = boton.dataset.alumno;
+
+      // Abrir el formulario
       modalReal.classList.add("abierto");
     });
   });
@@ -157,6 +204,5 @@
       modalReal.classList.remove("abierto");
     }
   });
-
 </script>
 {% endblock %}
