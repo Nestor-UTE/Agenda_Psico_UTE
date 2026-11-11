@@ -1,15 +1,16 @@
-{% extends "base_psicologa.html" %}
-
-{% block titulo %}Lista alumnos{% endblock %}
-
-{% block contenido %}
+{% extends "base_psicologa.html" %} {% block titulo %}Lista alumnos{% endblock
+%} {% block contenido %}
 <main class="contenido">
   <h2>Lista alumnos</h2>
   <p class="subtitulo">Alumnos registrados en el sistema</p>
 
   <div class="barra-buscar">
     <i class="bi bi-search"></i>
-    <input type="search" id="buscador" placeholder="Buscar por nombre, matrícula o grupo...">
+    <input
+      type="search"
+      id="buscador"
+      placeholder="Buscar por nombre, matrícula o grupo..."
+    />
   </div>
 
   <section class="caja">
@@ -20,47 +21,33 @@
             <th>Matrícula</th>
             <th>Alumno</th>
             <th>Carrera</th>
+            <th>Grado</th>
             <th>Grupo</th>
             <th>Tutor</th>
           </tr>
         </thead>
+
         <tbody id="tabla-datos">
+          {% for a in alumnos %}
           <tr>
-            <td>0000001</td>
-            <td>Alumno de ejemplo 1</td>
-            <td>TIC</td>
-            <td>3A</td>
-            <td>Tutor de ejemplo</td>
+            <td>{{ a.matricula }}</td>
+            <td>{{ a.alumno }}</td>
+            <td>{{ a.carrera }}</td>
+            <td>{{ a.grado }}</td>
+            <td>{{ a.grupo }}</td>
+            <td>{{ a.tutor or 'Sin tutor' }}</td>
           </tr>
+          {% else %}
           <tr>
-            <td>0000002</td>
-            <td>Alumno de ejemplo 2</td>
-            <td>TIC</td>
-            <td>5B</td>
-            <td>Tutor de ejemplo</td>
+            <td colspan="6">No hay alumnos registrados todavía.</td>
           </tr>
-          <tr>
-            <td>0000003</td>
-            <td>Alumno de ejemplo 3</td>
-            <td>TIC</td>
-            <td>1C</td>
-            <td>Tutor de ejemplo</td>
-          </tr>
-          <tr>
-            <td>0000004</td>
-            <td>Alumno de ejemplo 4</td>
-            <td>TIC</td>
-            <td>2B</td>
-            <td>Tutor de ejemplo</td>
-          </tr>
+          {% endfor %}
         </tbody>
       </table>
     </div>
   </section>
 </main>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script>
   const buscador = document.getElementById("buscador");
   const filas = document.querySelectorAll("#tabla-datos tr");
@@ -68,7 +55,9 @@
   buscador.addEventListener("input", function () {
     const texto = buscador.value.toLowerCase();
     filas.forEach(function (fila) {
-      fila.style.display = fila.textContent.toLowerCase().includes(texto) ? "" : "none";
+      fila.style.display = fila.textContent.toLowerCase().includes(texto)
+        ? ""
+        : "none";
     });
   });
 </script>

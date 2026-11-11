@@ -51,6 +51,46 @@ class Alumnos:
         finally:
             conexion.close()
 
+
+    @staticmethod
+    def obtener_lista():
+        """Obtiene los alumnos registrados junto con su tutor."""
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return []
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("""
+                    SELECT
+                        a.matricula,
+                        CONCAT(
+                            a.nombre, ' ',
+                            a.a_paterno, ' ',
+                            COALESCE(a.a_materno, '')
+                        ) AS alumno,
+                        a.carrera,
+                        a.grado,
+                        a.grupo,
+                        t.nombre AS tutor
+                    FROM alumnos a
+                    LEFT JOIN tutor t
+                        ON a.id_tutor = t.id_tutor
+                    ORDER BY a.a_paterno, a.nombre
+                """)
+
+                return cursor.fetchall()
+
+        except pymysql.MySQLError as error:
+            print(f"Error al obtener lista de alumnos: {error}")
+            return []
+
+        finally:
+            conexion.close()
+
+
     @staticmethod
     def obtener_por_tutor(id_tutor):
         """Alumnos asignados a un tutor, para el formulario de solicitar cita.

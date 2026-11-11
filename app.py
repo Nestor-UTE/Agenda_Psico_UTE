@@ -7,6 +7,7 @@ from models.cita import Cita
 from datetime import datetime
 from secrets import token_urlsafe
 from hmac import compare_digest
+from models.alumnos import Alumnos
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -224,10 +225,18 @@ def historial():
     return render_template("historial.html", pagina="historial", citas=citas)
 
 
+
 @app.route("/panel-psicologa/alumnos")
 @login_requerido("psicologa")
 def lista_alumnos():
-    return render_template("lista_alumnos.html", pagina="alumnos")
+    alumnos = Alumnos.obtener_lista()
+
+    return render_template(
+        "lista_alumnos.html",
+        pagina="alumnos",
+        alumnos=alumnos
+    )
+
 
 
 
