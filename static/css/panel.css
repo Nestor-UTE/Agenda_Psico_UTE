@@ -220,6 +220,19 @@ th {
     white-space: nowrap;
 }
 
+
+/* Botones de la tabla Solicitudes */
+.tabla-solicitudes .acciones {
+    white-space: nowrap;
+}
+
+.tabla-solicitudes .acciones form {
+    display: inline-block;
+    margin: 0 0 0 8px;
+    vertical-align: middle;
+}
+
+
 .btn {
   padding: 8px 16px;
   border: none;
