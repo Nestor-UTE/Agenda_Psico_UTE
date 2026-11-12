@@ -8,6 +8,7 @@ from datetime import datetime
 from secrets import token_urlsafe
 from hmac import compare_digest
 from models.alumnos import Alumnos
+from models.seguimiento import Seguimiento
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -568,10 +569,20 @@ def mis_alumnos():
 
 
 
+
 @app.route("/panel-profesor/seguimiento")
 @login_requerido("tutor")
 def seguimiento_profesor():
-    return render_template("seguimiento_profesor.html", pagina="seguimiento")
+    id_tutor = session["id"]
+
+    seguimientos = Seguimiento.obtener_por_tutor(id_tutor)
+
+    return render_template(
+        "seguimiento_profesor.html",
+        pagina="seguimiento",
+        seguimientos=seguimientos
+    )
+
 
 
 @app.route("/folio", methods=["POST"])

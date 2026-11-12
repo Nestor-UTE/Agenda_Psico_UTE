@@ -44,6 +44,60 @@ class Seguimiento:
         finally:
             conexion.close()
 
+    
+    @staticmethod
+    def obtener_por_tutor(id_tutor):
+        """Obtiene recomendaciones de citas realizadas
+        de los alumnos asignados al tutor."""
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return []
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("""
+                    SELECT
+                        c.id_cita,
+                        c.fecha,
+                        a.matricula,
+                        CONCAT(
+                            a.nombre, ' ',
+                            a.a_paterno, ' ',
+                            a.a_materno
+                        ) AS alumno,
+                        a.carrera,
+                        a.grado,
+                        a.grupo,
+                        s.recomendacion,
+                        s.requiere_mas_sesiones
+
+                    FROM seguimiento s
+
+                    INNER JOIN cita c
+                        ON c.id_cita = s.id_cita
+
+                    INNER JOIN alumnos a
+                        ON a.matricula = c.matricula_alumno
+
+                    WHERE c.id_tutor = %s
+                      AND a.id_tutor = %s
+                      AND c.estatus = 'Realizada'
+
+                    ORDER BY c.fecha DESC, c.id_cita DESC
+                """, (id_tutor, id_tutor))
+
+                return cursor.fetchall()
+
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar seguimiento del tutor: {error}")
+            return []
+
+        finally:
+            conexion.close()
+
+
 if __name__ == "__main__":
     nuevo = Seguimiento("Se recomienda seguimiento mensual", "Primera sesión, sin incidentes", id_cita=1)
     print("Guardado:", nuevo.guardar())
