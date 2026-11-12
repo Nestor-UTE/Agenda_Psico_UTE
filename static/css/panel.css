@@ -217,8 +217,7 @@ th {
 }
 
 .acciones {
-  display: flex;
-  gap: 8px;
+    white-space: nowrap;
 }
 
 .btn {
@@ -247,6 +246,16 @@ th {
 
 .btn-gris:hover {
   background: #dfe2e8;
+}
+
+.btn-volver-solicitar {
+    background: #fff0dd;
+    color: #b7650b;
+}
+
+.btn-volver-solicitar:hover {
+    background: #ffdcae;
+    color: #955008;
 }
 
 .modal-fondo {
@@ -691,4 +700,171 @@ a.btn {
     font-size: 12px;
     color: #526174;
     line-height: 1.4;
+}
+
+
+
+/* Herramientas de Mis alumnos */
+.herramientas-alumnos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 20px 0 24px;
+}
+
+/* Primera fila */
+.herramientas-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.herramientas-superior .barra-buscar {
+    margin: 0;
+    width: 420px;
+    max-width: 100%;
+}
+
+/* Ordenamiento */
+.orden-alumnos {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 24px;
+    padding: 0 16px;
+    height: 44px;
+}
+
+.orden-alumnos i {
+    color: #64748b;
+    font-size: 16px;
+}
+
+.orden-alumnos select {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+}
+
+/* Segunda fila */
+.filtros-alumnos {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+}
+
+/* Cada filtro */
+.filtro-campo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 24px;
+    padding: 0 16px;
+    height: 44px;
+}
+
+.filtro-campo i {
+    color: #64748b;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.filtro-campo select,
+.filtro-campo input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    color: #374151;
+}
+
+/* Al seleccionar un filtro */
+.filtro-campo:focus-within,
+.orden-alumnos:focus-within {
+    border-color: #6a9fdc;
+}
+
+/* Pantallas medianas */
+@media (max-width: 1100px) {
+    .filtros-alumnos {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* Celulares */
+@media (max-width: 768px) {
+    .herramientas-superior {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .herramientas-superior .barra-buscar {
+        width: 100%;
+    }
+
+    .filtros-alumnos {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .filtros-alumnos {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* Botón para limpiar el filtro de fecha */
+.filtro-campo-fecha {
+    position: relative;
+}
+
+.btn-limpiar-fecha {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #e9eef5;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.btn-limpiar-fecha:hover {
+    background: #fce8e8;
+    color: #c0392b;
+}
+
+/* Mantener oculta la X cuando no haya fecha */
+.btn-limpiar-fecha[hidden] {
+    display: none;
+}
+
+/* Mensaje cuando no hay resultados en los filtros */
+.sin-resultados {
+    text-align: center;
+    padding: 32px 20px;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.sin-resultados[hidden] {
+    display: none;
 }

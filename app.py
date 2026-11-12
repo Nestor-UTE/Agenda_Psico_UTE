@@ -511,9 +511,28 @@ def panel_profesor():
 @app.route("/panel-profesor/solicitar-cita", methods=["GET", "POST"])
 @login_requerido("tutor")
 def solicitar_cita():
+    
     if request.method == "GET":
-        return render_template("solicitar_cita.html", pagina="solicitar", datos={})
+        matricula = request.args.get("matricula", "").strip()
+        datos = {}
 
+        if matricula:
+            alumno = Alumnos.obtener_por_matricula_y_tutor(
+                matricula,
+                session["id"]
+            )
+
+            if alumno is None:
+                flash("No se encontró el alumno asignado a tu cuenta", "error")
+                return redirect(url_for("mis_alumnos"))
+
+            datos = alumno
+
+        return render_template(
+            "solicitar_cita.html",
+            pagina="solicitar",
+            datos=datos
+        )
     alumno, motivo, error = validar_solicitud(request.form)
     if error is None:
         folio, error = Cita.solicitar(session["id"], motivo, alumno)
@@ -533,10 +552,20 @@ def solicitar_cita():
 
 
 
+
 @app.route("/panel-profesor/mis-alumnos")
 @login_requerido("tutor")
 def mis_alumnos():
-    return render_template("mis_alumnos.html", pagina="alumnos")
+    id_tutor = session["id"]
+
+    alumnos = Alumnos.obtener_estado_por_tutor(id_tutor)
+
+    return render_template(
+        "mis_alumnos.html",
+        pagina="alumnos",
+        alumnos=alumnos
+    )
+
 
 
 @app.route("/panel-profesor/seguimiento")

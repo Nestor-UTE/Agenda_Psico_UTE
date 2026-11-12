@@ -92,6 +92,98 @@ class Alumnos:
 
 
     @staticmethod
+    def obtener_estado_por_tutor(id_tutor):
+        """Obtiene los alumnos del tutor y su cita más reciente."""
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return []
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("""
+                    SELECT
+                        a.matricula,
+                        a.nombre,
+                        a.a_paterno,
+                        a.a_materno,
+                        CONCAT(
+                            a.nombre, ' ',
+                            a.a_paterno, ' ',
+                            COALESCE(a.a_materno, '')
+                        ) AS alumno,
+                        a.carrera,
+                        a.grado,
+                        a.grupo,
+                        COALESCE(c.estatus, 'Sin cita') AS estatus,
+                        c.id_cita,
+                        c.num_folio,
+                        c.fecha
+                    FROM alumnos a
+
+                    LEFT JOIN cita c
+                        ON c.id_cita = (
+                            SELECT c2.id_cita
+                            FROM cita c2
+                            WHERE c2.matricula_alumno = a.matricula
+                            AND c2.id_tutor = a.id_tutor
+                            ORDER BY c2.id_cita DESC
+                            LIMIT 1
+                        )
+
+                    WHERE a.id_tutor = %s
+
+                    ORDER BY a.a_paterno, a.nombre
+                """, (id_tutor,))
+
+                return cursor.fetchall()
+
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar alumnos del tutor: {error}")
+            return []
+
+        finally:
+            conexion.close()
+
+
+    @staticmethod
+    def obtener_por_matricula_y_tutor(matricula, id_tutor):
+        """Busca un alumno que pertenece al tutor actual."""
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return None
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("""
+                    SELECT
+                        matricula,
+                        nombre,
+                        a_paterno,
+                        a_materno,
+                        carrera,
+                        grado,
+                        grupo
+                    FROM alumnos
+                    WHERE matricula = %s
+                    AND id_tutor = %s
+                    LIMIT 1
+                """, (matricula, id_tutor))
+
+                return cursor.fetchone()
+
+        except pymysql.MySQLError as error:
+            print(f"Error al buscar alumno: {error}")
+            return None
+
+        finally:
+            conexion.close()
+
+
+    @staticmethod
     def obtener_por_tutor(id_tutor):
         """Alumnos asignados a un tutor, para el formulario de solicitar cita.
         Regresa diccionarios con: matricula, nombre, carrera y grupo (ej. 3A)."""
