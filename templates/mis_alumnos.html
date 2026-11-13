@@ -118,6 +118,7 @@
         <tbody id="tabla-datos">
           {% for a in alumnos %}
           <tr
+            data-filtro
             data-grado="{{ a.grado }}"
             data-grupo="{{ a.grupo }}"
             data-carrera="{{ a.carrera }}"
@@ -185,138 +186,15 @@
     </div>
   </section>
 </main>
-{% endblock %} {% block scripts %}
+{% endblock %} 
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/filtros.js') }}"></script>
+
 <script>
-  const buscador = document.getElementById("buscador");
-  const filtroGrado = document.getElementById("filtro-grado");
-  const filtroGrupo = document.getElementById("filtro-grupo");
-  const filtroCarrera = document.getElementById("filtro-carrera");
-  const filtroEstado = document.getElementById("filtro-estado");
-  const filtroFecha = document.getElementById("filtro-fecha");
-  const limpiarFecha = document.getElementById("limpiar-fecha");
-  const ordenFecha = document.getElementById("orden-fecha");
-
-  const tabla = document.getElementById("tabla-datos");
-  const sinResultados = document.getElementById("sin-resultados");
-  const filas = Array.from(tabla.querySelectorAll("tr[data-grado]"));
-
-  // Obtener las carreras existentes sin repetirlas
-  const carreras = [
-    ...new Set(filas.map((fila) => fila.dataset.carrera.trim())),
-  ]
-    .filter(Boolean)
-    .sort();
-
-  carreras.forEach(function (carrera) {
-    const opcion = document.createElement("option");
-    opcion.value = carrera;
-    opcion.textContent = carrera;
-    filtroCarrera.appendChild(opcion);
-  });
-
-  // Aplicar todos los filtros al mismo tiempo
-  function aplicarFiltros() {
-    const texto = buscador.value.trim().toLowerCase();
-    const grado = filtroGrado.value;
-    const grupo = filtroGrupo.value.trim().toLowerCase();
-    const carrera = filtroCarrera.value;
-    const estado = filtroEstado.value;
-    const fecha = filtroFecha.value;
-
-    let totalVisibles = 0;
-    filas.forEach(function (fila) {
-      const coincideTexto =
-        fila.cells[0].textContent.toLowerCase().includes(texto) ||
-        fila.cells[1].textContent.toLowerCase().includes(texto);
-
-      const coincideGrado = !grado || fila.dataset.grado === grado;
-      const coincideGrupo =
-        !grupo || fila.dataset.grupo.toLowerCase().includes(grupo);
-      const coincideCarrera = !carrera || fila.dataset.carrera === carrera;
-      const coincideEstado = !estado || fila.dataset.estado === estado;
-      const coincideFecha = !fecha || fila.dataset.fecha === fecha;
-
-      fila.style.display =
-        coincideTexto &&
-        coincideGrado &&
-        coincideGrupo &&
-        coincideCarrera &&
-        coincideEstado &&
-        coincideFecha
-          ? ""
-          : "none";
-
-      if (fila.style.display !== "none") {
-        totalVisibles++;
-      }
+    iniciarFiltros({
+        tablaId: "tabla-datos"
     });
-    // Mostrar mensaje cuando ningún alumno coincida
-    sinResultados.hidden = totalVisibles > 0 || filas.length === 0;
-  }
-
-  // Ordenar alumnos por fecha de su cita
-  function ordenarAlumnos() {
-    const direccion = ordenFecha.dataset.orden;
-
-    filas.sort(function (a, b) {
-      const fechaA = a.dataset.fecha;
-      const fechaB = b.dataset.fecha;
-
-      // Alumnos sin fecha al final
-      if (!fechaA && !fechaB) return 0;
-      if (!fechaA) return 1;
-      if (!fechaB) return -1;
-
-      return direccion === "reciente"
-        ? fechaB.localeCompare(fechaA)
-        : fechaA.localeCompare(fechaB);
-    });
-
-    filas.forEach((fila) => tabla.appendChild(fila));
-  }
-
-  // Escuchar cambios en los filtros
-  [buscador, filtroGrupo].forEach(function (campo) {
-    campo.addEventListener("input", aplicarFiltros);
-  });
-
-  [filtroGrado, filtroCarrera, filtroEstado, filtroFecha].forEach(
-    function (campo) {
-      campo.addEventListener("change", aplicarFiltros);
-    },
-  );
-
-  ordenFecha.addEventListener("click", function () {
-    const nuevoOrden =
-      ordenFecha.dataset.orden === "reciente" ? "antiguo" : "reciente";
-
-    ordenFecha.dataset.orden = nuevoOrden;
-
-    const texto = nuevoOrden === "reciente" ? "Más recientes" : "Más antiguos";
-
-    document.getElementById("texto-orden").textContent = texto;
-
-    ordenFecha.setAttribute(
-      "aria-label",
-      "Ordenar por fecha: " + texto.toLowerCase(),
-    );
-
-    ordenarAlumnos();
-  });
-
-  /* Mostrar la X cuando haya una fecha */
-  filtroFecha.addEventListener("change", function () {
-    limpiarFecha.hidden = !filtroFecha.value;
-  });
-
-  /* Limpiar únicamente el filtro de fecha */
-  limpiarFecha.addEventListener("click", function () {
-    filtroFecha.value = "";
-    limpiarFecha.hidden = true;
-    aplicarFiltros();
-  });
-
-  // Orden inicial
-  ordenarAlumnos();
 </script>
 {% endblock %}
+

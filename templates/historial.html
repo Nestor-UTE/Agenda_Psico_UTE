@@ -1,3 +1,4 @@
+
 {% extends "base_psicologa.html" %}
 
 {% block titulo %}Historial{% endblock %}
@@ -7,11 +8,90 @@
   <h2>Historial</h2>
   <p class="subtitulo">Registro de todas las citas anteriores</p>
 
-  <div class="barra-buscar">
-    <i class="bi bi-search"></i>
-    <input type="search" id="buscador" placeholder="Buscar por alumno, matrícula, tutor o fecha...">
+  <!-- Buscador y filtros -->
+  <div class="herramientas-alumnos">
+    <div class="herramientas-superior">
+      <div class="barra-buscar">
+        <i class="bi bi-search"></i>
+        <input
+          type="search"
+          id="buscador"
+          placeholder="Buscar alumno, matrícula, tutor o fecha..."
+          aria-label="Buscar en historial"
+        />
+      </div>
+
+      <button
+        type="button"
+        class="orden-alumnos"
+        id="orden-fecha"
+        data-orden="reciente"
+        aria-label="Ordenar por fecha: más recientes"
+      >
+        <i class="bi bi-arrow-down-up"></i>
+        <span id="texto-orden">Más recientes</span>
+      </button>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros-alumnos">
+      <!-- Grado -->
+      <div class="filtro-campo">
+        <i class="bi bi-mortarboard"></i>
+        <select id="filtro-grado" aria-label="Filtrar por grado">
+          <option value="">Grado</option>
+          {% for grado in range(1, 12) %}
+          <option value="{{ grado }}">{{ grado }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Grupo -->
+      <div class="filtro-campo">
+        <i class="bi bi-people"></i>
+        <input
+          type="text"
+          id="filtro-grupo"
+          placeholder="Grupo"
+          aria-label="Filtrar por grupo"
+        />
+      </div>
+
+      <!-- Estado -->
+      <div class="filtro-campo">
+        <i class="bi bi-clipboard-check"></i>
+        <select id="filtro-estado" aria-label="Filtrar por estado">
+          <option value="">Estado</option>
+          <option value="Realizada">Realizada</option>
+          <option value="Rechazada">Rechazada</option>
+          <option value="Cancelada">Cancelada</option>
+        </select>
+      </div>
+
+      <!-- Fecha -->
+      <div class="filtro-campo filtro-campo-fecha">
+        <i class="bi bi-calendar3"></i>
+        <input
+          type="date"
+          id="filtro-fecha"
+          aria-label="Filtrar por fecha"
+        />
+
+        <button
+          type="button"
+          id="limpiar-fecha"
+          class="btn-limpiar-fecha"
+          aria-label="Quitar filtro de fecha"
+          title="Quitar fecha"
+          hidden
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
+  <!-- Tabla de historial -->
   <section class="caja">
     <div class="tabla-scroll">
       <table>
@@ -21,44 +101,57 @@
             <th>Hora</th>
             <th>Alumno</th>
             <th>Matrícula</th>
+            <th>Grado</th>
             <th>Grupo</th>
             <th>Tutor</th>
             <th>Resultado</th>
           </tr>
         </thead>
+
         <tbody id="tabla-datos">
           {% for c in citas %}
-          <tr>
+          <tr
+            data-filtro
+            data-grado="{{ c.grupo[:-1] }}"
+            data-grupo="{{ c.grupo[-1:] }}"
+            data-estado="{{ c.estatus }}"
+            data-fecha="{{ c.fecha.strftime('%Y-%m-%d') if c.fecha else '' }}"
+          >
             <td>{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else '—' }}</td>
             <td>{{ c.fecha.strftime('%H:%M') if c.fecha else '—' }}</td>
             <td>{{ c.alumno }}</td>
             <td>{{ c.matricula }}</td>
-            <td>{{ c.grupo }}</td>
+            <td>{{ c.grupo[:-1] }}</td>
+            <td>{{ c.grupo[-1:] }}</td>
             <td>{{ c.tutor }}</td>
-            <td><span class="estado estado-{{ c.estatus|lower }}">{{ c.estatus }}</span></td>
+            <td>
+              <span class="estado estado-{{ c.estatus|lower }}">
+                {{ c.estatus }}
+              </span>
+            </td>
           </tr>
           {% else %}
           <tr>
-            <td colspan="7">Todavía no hay citas en el historial.</td>
+            <td colspan="8">Todavía no hay citas en el historial.</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+
+      <p id="sin-resultados" class="sin-resultados" hidden>
+        No se encontraron citas con los filtros seleccionados.
+      </p>
     </div>
   </section>
 </main>
 {% endblock %}
 
 {% block scripts %}
-<script>
-  const buscador = document.getElementById("buscador");
-  const filas = document.querySelectorAll("#tabla-datos tr");
+<script src="{{ url_for('static', filename='js/filtros.js') }}"></script>
 
-  buscador.addEventListener("input", function () {
-    const texto = buscador.value.toLowerCase();
-    filas.forEach(function (fila) {
-      fila.style.display = fila.textContent.toLowerCase().includes(texto) ? "" : "none";
-    });
+<script>
+  iniciarFiltros({
+    tablaId: "tabla-datos"
   });
 </script>
 {% endblock %}

@@ -4,13 +4,81 @@
   <h2>Agenda / Cita</h2>
   <p class="subtitulo">Citas ya agendadas con fecha y hora</p>
 
-  <div class="barra-buscar">
-    <i class="bi bi-search"></i>
-    <input
-      type="search"
-      id="buscador"
-      placeholder="Buscar por alumno, matrícula, tutor o fecha..."
-    />
+  <!-- Buscador y filtros -->
+  <div class="herramientas-alumnos">
+    <div class="herramientas-superior">
+      <div class="barra-buscar">
+        <i class="bi bi-search"></i>
+        <input
+          type="search"
+          id="buscador"
+          placeholder="Buscar alumno, matrícula, tutor o fecha..."
+          aria-label="Buscar citas"
+        />
+      </div>
+
+      <button
+        type="button"
+        class="orden-alumnos"
+        id="orden-fecha"
+        data-orden="reciente"
+        aria-label="Ordenar por fecha: más recientes"
+      >
+        <i class="bi bi-arrow-down-up"></i>
+        <span id="texto-orden">Más recientes</span>
+      </button>
+    </div>
+
+    <div class="filtros-alumnos">
+      <!-- Grado -->
+      <div class="filtro-campo">
+        <i class="bi bi-mortarboard"></i>
+        <select id="filtro-grado" aria-label="Filtrar por grado">
+          <option value="">Grado</option>
+          {% for grado in range(1, 12) %}
+          <option value="{{ grado }}">{{ grado }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Grupo -->
+      <div class="filtro-campo">
+        <i class="bi bi-people"></i>
+        <input
+          type="text"
+          id="filtro-grupo"
+          placeholder="Grupo"
+          aria-label="Filtrar por grupo"
+        />
+      </div>
+
+      <!-- Estado -->
+      <div class="filtro-campo">
+        <i class="bi bi-clipboard-check"></i>
+        <select id="filtro-estado" aria-label="Filtrar por estado">
+          <option value="">Estado</option>
+          <option value="Agendada">Agendada</option>
+          <option value="Reprogramada">Reprogramada</option>
+        </select>
+      </div>
+
+      <!-- Fecha -->
+      <div class="filtro-campo filtro-campo-fecha">
+        <i class="bi bi-calendar3"></i>
+        <input type="date" id="filtro-fecha" aria-label="Filtrar por fecha" />
+
+        <button
+          type="button"
+          id="limpiar-fecha"
+          class="btn-limpiar-fecha"
+          aria-label="Quitar filtro de fecha"
+          title="Quitar fecha"
+          hidden
+        >
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
   </div>
 
   <section class="caja">
@@ -22,6 +90,7 @@
             <th>Hora</th>
             <th>Alumno</th>
             <th>Matrícula</th>
+            <th>Grado</th>
             <th>Grupo</th>
             <th>Tutor</th>
             <th>Estado</th>
@@ -30,12 +99,20 @@
         </thead>
         <tbody id="tabla-citas">
           {% for c in citas %}
-          <tr>
+
+          <tr
+            data-filtro
+            data-grado="{{ c.grupo[:-1] }}"
+            data-grupo="{{ c.grupo[-1:] }}"
+            data-estado="{{ c.estatus }}"
+            data-fecha="{{ c.fecha.strftime('%Y-%m-%d') if c.fecha else '' }}"
+          >
             <td>{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else '—' }}</td>
             <td>{{ c.fecha.strftime('%H:%M') if c.fecha else '—' }}</td>
             <td>{{ c.alumno }}</td>
             <td>{{ c.matricula }}</td>
-            <td>{{ c.grupo }}</td>
+            <td>{{ c.grupo[:-1] }}</td>
+            <td>{{ c.grupo[-1:] }}</td>
             <td>{{ c.tutor }}</td>
             <td>
               <span class="estado estado-{{ c.estatus|lower }}"
@@ -62,11 +139,15 @@
           </tr>
           {% else %}
           <tr>
-            <td colspan="8">No hay citas agendadas.</td>
+            <td colspan="9">No hay citas agendadas.</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+
+      <p id="sin-resultados" class="sin-resultados" hidden>
+        No se encontraron citas con los filtros seleccionados.
+      </p>
     </div>
   </section>
 </main>
@@ -137,18 +218,6 @@
 
 {% endblock %} {% block scripts %}
 <script>
-  /* ---------- Buscador ---------- */
-  const buscador = document.getElementById("buscador");
-  const filas = document.querySelectorAll("#tabla-citas tr");
-
-  buscador.addEventListener("input", function () {
-    const texto = buscador.value.toLowerCase();
-    filas.forEach(function (fila) {
-      const coincide = fila.textContent.toLowerCase().includes(texto);
-      fila.style.display = coincide ? "" : "none";
-    });
-  });
-
   /* ---------- Modal Reprogramar ---------- */
   const modalRepro = document.getElementById("modal-reprogramar");
   const nombreRepro = document.getElementById("modal-nombre-repro");
@@ -205,4 +274,13 @@
     }
   });
 </script>
+
+<script src="{{ url_for('static', filename='js/filtros.js') }}"></script>
+
+<script>
+  iniciarFiltros({
+    tablaId: "tabla-citas",
+  });
+</script>
+
 {% endblock %}

@@ -1,16 +1,65 @@
-{% extends "base_psicologa.html" %}
-
-{% block titulo %}Solicitudes{% endblock %}
-
+{% extends "base_psicologa.html" %} {% block titulo %}Solicitudes{% endblock %}
 {% block contenido %}
 <main class="contenido">
   <h2>Solicitudes</h2>
   <p class="subtitulo">Citas que los tutores han pedido y esperan fecha</p>
-  {% with mensajes = get_flashed_messages(with_categories=true) %}
-    {% for categoria, mensaje in mensajes %}
-    <div class="aviso aviso-{{ categoria }}">{{ mensaje }}</div>
-    {% endfor %}
-  {% endwith %}
+
+  <!-- Buscador de solicitudes -->
+  <div class="herramientas-alumnos">
+    <div class="herramientas-superior">
+      <div class="barra-buscar">
+        <i class="bi bi-search"></i>
+        <input
+          type="search"
+          id="buscador"
+          placeholder="Buscar tutor, alumno o matrícula..."
+          aria-label="Buscar solicitudes"
+        />
+      </div>
+    </div>
+
+    <!-- Filtros de solicitudes -->
+    <div class="filtros-alumnos">
+      <!-- Carrera -->
+
+      <!-- Grado -->
+      <div class="filtro-campo">
+        <i class="bi bi-mortarboard"></i>
+
+        <select id="filtro-grado" aria-label="Filtrar por grado">
+          <option value="">Grado</option>
+          {% for grado in range(1, 12) %}
+          <option value="{{ grado }}">{{ grado }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="filtro-campo">
+        <i class="bi bi-book"></i>
+
+        <select id="filtro-carrera" aria-label="Filtrar por carrera">
+          <option value="">Carrera</option>
+        </select>
+      </div>
+
+      <!-- Grupo -->
+      <div class="filtro-campo">
+        <i class="bi bi-people"></i>
+
+        <input
+          type="text"
+          id="filtro-grupo"
+          placeholder="Grupo"
+          aria-label="Filtrar por grupo"
+        />
+      </div>
+    </div>
+  </div>
+
+  {% with mensajes = get_flashed_messages(with_categories=true) %} {% for
+  categoria, mensaje in mensajes %}
+  <div class="aviso aviso-{{ categoria }}">{{ mensaje }}</div>
+  {% endfor %} {% endwith %}
 
   <section class="caja">
     <div class="tabla-scroll">
@@ -21,36 +70,66 @@
             <th>Alumno</th>
             <th>Matrícula</th>
             <th>Carrera</th>
+
+            <th>Grado</th>
             <th>Grupo</th>
+
             <th>Motivo</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="tabla-solicitudes">
           {% for c in citas %}
-          <tr>
+
+          <tr
+            data-filtro
+            data-carrera="{{ c.carrera }}"
+            data-grado="{{ c.grupo[:-1] }}"
+            data-grupo="{{ c.grupo[-1:] }}"
+          >
             <td>{{ c.tutor }}</td>
             <td>{{ c.alumno }}</td>
             <td>{{ c.matricula }}</td>
             <td>{{ c.carrera }}</td>
-            <td>{{ c.grupo }}</td>
+
+            <td>{{ c.grupo[:-1] }}</td>
+            <td>{{ c.grupo[-1:] }}</td>
+
             <td>{{ c.motivo }}</td>
             <td class="acciones">
-              <button type="button" class="btn btn-azul btn-agendar" data-id="{{ c.id_cita }}" data-alumno="{{ c.alumno }}">Agendar</button>
-              <form action="{{ url_for('rechazar_cita') }}" method="post"
-                    onsubmit="return confirm('¿Seguro que quieres rechazar esta solicitud?');">
-                <input type="hidden" name="id_cita" value="{{ c.id_cita }}">
+              <button
+                type="button"
+                class="btn btn-azul btn-agendar"
+                data-id="{{ c.id_cita }}"
+                data-alumno="{{ c.alumno }}"
+              >
+                Agendar
+              </button>
+              <form
+                action="{{ url_for('rechazar_cita') }}"
+                method="post"
+                onsubmit="
+                  return confirm(
+                    '¿Seguro que quieres rechazar esta solicitud?',
+                  );
+                "
+              >
+                <input type="hidden" name="id_cita" value="{{ c.id_cita }}" />
                 <button type="submit" class="btn btn-gris">Rechazar</button>
               </form>
             </td>
           </tr>
           {% else %}
           <tr>
-            <td colspan="7">No hay solicitudes pendientes.</td>
+            <td colspan="8">No hay solicitudes pendientes.</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
+
+      <p id="sin-resultados" class="sin-resultados" hidden>
+        No se encontraron solicitudes con los filtros seleccionados.
+      </p>
     </div>
   </section>
 </main>
@@ -61,24 +140,24 @@
     <p class="modal-alumno">Alumno: <strong id="modal-nombre"></strong></p>
 
     <form action="{{ url_for('agendar_cita') }}" method="post">
-      <input type="hidden" id="id-cita" name="id_cita">
+      <input type="hidden" id="id-cita" name="id_cita" />
       <label for="fecha">Fecha</label>
-      <input type="date" id="fecha" name="fecha" required>
+      <input type="date" id="fecha" name="fecha" required />
 
       <label for="hora">Hora</label>
-      <input type="time" id="hora" name="hora" required>
+      <input type="time" id="hora" name="hora" required />
 
       <div class="modal-botones">
-        <button type="button" class="btn btn-gris" id="btn-cancelar">Cancelar</button>
+        <button type="button" class="btn btn-gris" id="btn-cancelar">
+          Cancelar
+        </button>
         <button type="submit" class="btn btn-azul">Guardar</button>
       </div>
     </form>
   </div>
 </div>
 
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 
 <script>
   const modal = document.getElementById("modal-agendar");
@@ -107,6 +186,14 @@
     if (evento.target === modal) {
       modal.classList.remove("abierto");
     }
+  });
+</script>
+
+<script src="{{ url_for('static', filename='js/filtros.js') }}"></script>
+
+<script>
+  iniciarFiltros({
+    tablaId: "tabla-solicitudes",
   });
 </script>
 

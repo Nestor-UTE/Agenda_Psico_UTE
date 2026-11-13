@@ -1,18 +1,61 @@
-{% extends "base_psicologa.html" %} {% block titulo %}Lista alumnos{% endblock
-%} {% block contenido %}
+
+{% extends "base_psicologa.html" %}
+
+{% block titulo %}Lista alumnos{% endblock %}
+
+{% block contenido %}
 <main class="contenido">
   <h2>Lista alumnos</h2>
   <p class="subtitulo">Alumnos registrados en el sistema</p>
 
-  <div class="barra-buscar">
-    <i class="bi bi-search"></i>
-    <input
-      type="search"
-      id="buscador"
-      placeholder="Buscar por nombre, matrícula o grupo..."
-    />
+  <!-- Buscador y filtros -->
+  <div class="herramientas-alumnos">
+    <div class="herramientas-superior">
+      <div class="barra-buscar">
+        <i class="bi bi-search"></i>
+        <input
+          type="search"
+          id="buscador"
+          placeholder="Buscar alumno, matrícula o tutor..."
+          aria-label="Buscar alumnos"
+        />
+      </div>
+    </div>
+
+    <div class="filtros-alumnos">
+      <!-- Grado -->
+      <div class="filtro-campo">
+        <i class="bi bi-mortarboard"></i>
+        <select id="filtro-grado" aria-label="Filtrar por grado">
+          <option value="">Grado</option>
+          {% for grado in range(1, 12) %}
+          <option value="{{ grado }}">{{ grado }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Grupo -->
+      <div class="filtro-campo">
+        <i class="bi bi-people"></i>
+        <input
+          type="text"
+          id="filtro-grupo"
+          placeholder="Grupo"
+          aria-label="Filtrar por grupo"
+        />
+      </div>
+
+      <!-- Carrera -->
+      <div class="filtro-campo">
+        <i class="bi bi-book"></i>
+        <select id="filtro-carrera" aria-label="Filtrar por carrera">
+          <option value="">Carrera</option>
+        </select>
+      </div>
+    </div>
   </div>
 
+  <!-- Tabla de alumnos -->
   <section class="caja">
     <div class="tabla-scroll">
       <table>
@@ -29,7 +72,12 @@
 
         <tbody id="tabla-datos">
           {% for a in alumnos %}
-          <tr>
+          <tr
+            data-filtro
+            data-grado="{{ a.grado }}"
+            data-grupo="{{ a.grupo }}"
+            data-carrera="{{ a.carrera }}"
+          >
             <td>{{ a.matricula }}</td>
             <td>{{ a.alumno }}</td>
             <td>{{ a.carrera }}</td>
@@ -44,21 +92,21 @@
           {% endfor %}
         </tbody>
       </table>
+
+      <p id="sin-resultados" class="sin-resultados" hidden>
+        No se encontraron alumnos con los filtros seleccionados.
+      </p>
     </div>
   </section>
 </main>
-{% endblock %} {% block scripts %}
-<script>
-  const buscador = document.getElementById("buscador");
-  const filas = document.querySelectorAll("#tabla-datos tr");
+{% endblock %}
 
-  buscador.addEventListener("input", function () {
-    const texto = buscador.value.toLowerCase();
-    filas.forEach(function (fila) {
-      fila.style.display = fila.textContent.toLowerCase().includes(texto)
-        ? ""
-        : "none";
-    });
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/filtros.js') }}"></script>
+
+<script>
+  iniciarFiltros({
+    tablaId: "tabla-datos"
   });
 </script>
 {% endblock %}
