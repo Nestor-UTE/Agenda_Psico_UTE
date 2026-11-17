@@ -12,6 +12,7 @@ classDiagram
         +int grado
         +String grupo
         +String carrera
+        +String cuatrimestre
         +int id_tutor
         +guardar()
         +obtener_todos()$
@@ -43,16 +44,17 @@ classDiagram
     }
 
     class Tutor {
-        +int id_tutor
+       +int id_tutor
         +String nombre
-        +String telefono
+        +String telefono (opcional)
         +String correo
         +String contrasena
         +nuevo(nombre, telefono, correo, contrasena_plana)$
         +verificar_contrasena(contrasena_plana)
         +guardar()
         +buscar_por_correo(correo)$
-        +obtener_todos()$+obtener_resumen()$
+        +obtener_todos()$
+        +obtener_resumen()$
     }
 
     class Seguimiento {
@@ -62,19 +64,17 @@ classDiagram
         +guardar()
         +obtener_todos()$
     }
+
     class Ubicacion {
-    + int id_ubicacion
-    + String edificio
-    + String docencia
-    + String salon
-    + String referencia
-    + registrar_ubicacion()
-    + actualizar_ubicacion()
-}
+        +int id_ubicacion
+        +String edificio
+        +String docencia
+        +String salon
+        +String referencia
+        +registrar_ubicacion()
+        +actualizar_ubicacion()
+    }
 
-    
-
-    classDiagram
     Alumnos "1" -- "*" Cita : solicita
     Tutor "1" -- "*" Alumnos : supervisa
     Psicologa "1" -- "*" Cita : atiende
