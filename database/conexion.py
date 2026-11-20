@@ -7,6 +7,7 @@ def obtener_conexion():
         conexion = pymysql.connect(
             **DB_CONFIG,
             cursorclass=pymysql.cursors.DictCursor,
+            autocommit=False
         )
         return conexion
     except pymysql.MySQLError as error:

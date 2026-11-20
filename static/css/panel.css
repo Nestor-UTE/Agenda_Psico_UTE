@@ -881,3 +881,99 @@ a.btn {
 .sin-resultados[hidden] {
     display: none;
 }
+
+
+/* Icono de cuenta en la barra superior */
+.btn-cuenta {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 26px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+}
+
+.btn-cuenta:hover {
+    opacity: 0.8;
+}
+
+
+/* Menú desplegable de cuenta */
+.menu-cuenta {
+    position: absolute;
+    top: 80px;
+    right: 16px;
+    width: 290px;
+    max-width: calc(100vw - 32px);
+    padding: 20px;
+    background: white;
+    border: 1px solid #e3e8ef;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+}
+
+.menu-cuenta[hidden] {
+    display: none;
+}
+
+.menu-cuenta h3 {
+    color: #37817e;
+    font-size: 18px;
+    margin: 0 0 16px;
+}
+
+.menu-cuenta p {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #555;
+    overflow-wrap: anywhere;
+}
+
+.menu-cuenta strong {
+    color: #333;
+}
+
+/* Mensajes de Flask */
+.alerta-flash {
+    padding: 12px 16px;
+    margin: 15px 25px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.alerta-error {
+    background-color: #fce8e8;
+    color: #b42323;
+}
+
+.alerta-ok {
+    background-color: #e5f5eb;
+    color: #237a45;
+}
+
+/* Limitar el motivo a dos líneas */
+.contenido .columna-motivo {
+    width: 35%;
+    max-width: 0;
+}
+
+.contenido .texto-motivo {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+}
+/* Alinear las alertas sin que las tape el menú */
+.alerta-flash {
+    margin-left: 245px;
+    margin-right: 25px;
+    width: auto;
+    box-sizing: border-box;
+}

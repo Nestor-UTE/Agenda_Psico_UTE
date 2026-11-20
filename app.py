@@ -71,7 +71,41 @@ def inicio():
 @app.route("/panel-psicologa")
 @login_requerido("psicologa")
 def panel_psicologa():
-    return render_template("panel_psicologa.html", pagina="inicio")
+
+    # Obtener información de la base de datos
+    citas = Cita.obtener_agenda()
+    solicitudes = Cita.obtener_solicitudes()
+    seguimientos = Cita.obtener_seguimientos()
+
+    # Obtener la fecha actual
+    from datetime import date
+    hoy = date.today()
+
+    # Obtener únicamente las próximas citas
+    proximas_citas = sorted(
+    [
+        cita for cita in citas
+        if cita["fecha"] and cita["fecha"].date() >= hoy
+    ],
+    key=lambda cita: cita["fecha"]
+    )[:5]
+
+    # Contar las citas programadas para hoy
+    citas_hoy = sum(
+        1 for cita in citas
+        if cita["fecha"] and cita["fecha"].date() == hoy
+    )
+
+    return render_template(
+        "panel_psicologa.html",
+        pagina="inicio",
+        citas_hoy=citas_hoy,
+        solicitudes_pendientes=len(solicitudes),
+        alumnos_seguimiento=len({
+            s["matricula"] for s in seguimientos
+        }),
+        proximas_citas=proximas_citas,
+    )
 
 @app.route("/panel-psicologa/solicitudes")
 @login_requerido("psicologa")
@@ -102,6 +136,84 @@ def agendar_cita():
     else:
         flash("No se pudo agendar: la cita ya no estaba pendiente", "error")
     return redirect(url_for("solicitudes"))
+
+
+@app.route("/panel-psicologa/agenda/nueva", methods=["POST"])
+@login_requerido("psicologa")
+def agendar_cita_directa():
+
+    # Datos del alumno
+    nombre = request.form.get("nombre", "").strip()
+    a_paterno = request.form.get("a_paterno", "").strip()
+    a_materno = request.form.get("a_materno", "").strip()
+    carrera = request.form.get("carrera", "").strip()
+    grado = request.form.get("grado", "").strip()
+    grupo = request.form.get("grupo", "").strip().upper()
+    matricula = request.form.get("matricula", "").strip()
+    fecha = request.form.get("fecha", "")
+    hora = request.form.get("hora", "")
+    motivo = request.form.get("motivo", "").strip()
+
+    # Comprobar que estén completos los campos
+    if not all([
+        nombre,
+        a_paterno,
+        a_materno,
+        carrera,
+        grado,
+        grupo,
+        matricula,
+        fecha,
+        hora,
+        motivo
+    ]):
+        flash("Completa todos los campos", "error")
+        return redirect(url_for("agenda"))
+
+    # Validar fecha y hora
+    try:
+        fecha_hora = datetime.strptime(
+            f"{fecha} {hora}", "%Y-%m-%d %H:%M"
+        )
+    except ValueError:
+        flash("La fecha o la hora no son válidas", "error")
+        return redirect(url_for("agenda"))
+
+    if fecha_hora <= datetime.now():
+        flash("No puedes agendar una cita en el pasado", "error")
+        return redirect(url_for("agenda"))
+
+    # Reunir la información del alumno
+    datos_alumno = {
+        "matricula": matricula,
+        "nombre": nombre,
+        "a_paterno": a_paterno,
+        "a_materno": a_materno,
+        "carrera": carrera,
+        "grado": grado,
+        "grupo": grupo
+    }
+
+    # Obtener la psicóloga que inició sesión
+    id_psicologa = session["id"]
+
+    # Guardar la cita mediante el modelo
+
+    folio, error = Cita.agendar_directamente(
+        datos_alumno,
+        fecha_hora,
+        motivo,
+        id_psicologa
+    )
+
+
+    if error:
+        flash(error, "error")
+    else:
+        flash(f"Cita agendada correctamente. Folio: {folio}", "ok")
+
+    return redirect(url_for("agenda"))
+
 
 @app.route("/panel-psicologa/solicitudes/rechazar", methods=["POST"])
 @login_requerido("psicologa")
@@ -632,7 +744,10 @@ def login():
     # Login correcto: limpiamos cualquier sesión vieja y guardamos los datos
     session.clear()
     session["rol"] = rol
-    session["nombre"] = persona.nombre
+    session["nombre"] = persona.nombre    
+    session["usuario"] = persona.usuario if rol == "psicologa" else persona.correo
+
+
 
     if rol == "psicologa":
         session["id"] = persona.id_psicologa

@@ -2,15 +2,26 @@ import pymysql
 import secrets
 from database.conexion import obtener_conexion
 
+
 class Cita:
-    def __init__(self,num_folio, fecha, estatus, motivo, matricula_alumno, id_tutor, id_psicologa, id_cita= None):
+    def __init__(
+        self,
+        num_folio,
+        fecha,
+        estatus,
+        motivo,
+        matricula_alumno,
+        id_tutor,
+        id_psicologa,
+        id_cita=None,
+    ):
         self.id_cita = id_cita
         self.num_folio = num_folio
         self.fecha = fecha
         self.estatus = estatus
         self.motivo = motivo
         self.matricula_alumno = matricula_alumno
-        self.id_tutor= id_tutor
+        self.id_tutor = id_tutor
         self.id_psicologa = id_psicologa
 
     def guardar(self):
@@ -19,8 +30,19 @@ class Cita:
             return False
         try:
             with conexion.cursor() as cursor:
-                sql = ("INSERT INTO cita (num_folio, fecha, estatus, motivo, matricula_alumno, id_tutor, id_psicologa) VALUES (%s, %s, %s, %s, %s, %s, %s)")
-                cursor.execute(sql,(self.num_folio, self.fecha, self.estatus, self.motivo, self.matricula_alumno, self.id_tutor, self.id_psicologa),)
+                sql = "INSERT INTO cita (num_folio, fecha, estatus, motivo, matricula_alumno, id_tutor, id_psicologa) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                cursor.execute(
+                    sql,
+                    (
+                        self.num_folio,
+                        self.fecha,
+                        self.estatus,
+                        self.motivo,
+                        self.matricula_alumno,
+                        self.id_tutor,
+                        self.id_psicologa,
+                    ),
+                )
                 self.id_cita = cursor.lastrowid
             conexion.commit()
             return True
@@ -30,20 +52,29 @@ class Cita:
             return False
         finally:
             conexion.close()
-            
+
     @staticmethod
     def obtener_todos():
         """Regresa o muestra la lista de las citas ."""
         conexion = obtener_conexion()
         if conexion is None:
-            return[]
+            return []
         try:
             with conexion.cursor() as cursor:
                 cursor.execute("SELECT * FROM cita")
                 filas = cursor.fetchall()
             return [
-                Cita(f["num_folio"], f["fecha"], f["estatus"], f["motivo"], f["matricula_alumno"], f["id_tutor"], f["id_psicologa"], f["id_cita"])
-            for f in filas
+                Cita(
+                    f["num_folio"],
+                    f["fecha"],
+                    f["estatus"],
+                    f["motivo"],
+                    f["matricula_alumno"],
+                    f["id_tutor"],
+                    f["id_psicologa"],
+                    f["id_cita"],
+                )
+                for f in filas
             ]
         except pymysql.MySQLError as error:
             print(f"Error al mostrar las citas: {error}")
@@ -61,7 +92,7 @@ class Cita:
         try:
             with conexion.cursor() as cursor:
                 sql = """
-                    SELECT c.id_cita, c.num_folio, c.fecha, c.estatus,
+                    SELECT c.id_cita, c.num_folio, c.fecha, c.estatus, c.motivo,
                            a.matricula,
                            CONCAT(a.nombre, ' ', a.a_paterno, ' ', a.a_materno) AS alumno,
                            CONCAT(a.grado, a.grupo) AS grupo,
@@ -135,6 +166,7 @@ class Cita:
             return []
         finally:
             conexion.close()
+
     @staticmethod
     def agendar(id_cita, fecha):
         """Le pone fecha y hora a una solicitud y la pasa a 'Agendada'.
@@ -161,9 +193,133 @@ class Cita:
             conexion.close()
 
     @staticmethod
+    def agendar_directamente(datos_alumno, fecha, motivo, id_psicologa):
+        """Crea una cita para un alumno nuevo o existente."""
+        matricula = datos_alumno["matricula"]
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return None, "No hay conexión con la base de datos"
+
+        try:
+            with conexion.cursor() as cursor:
+                # Comprobar si ya existe una cita en esa fecha y hora
+                cursor.execute(
+                    """
+                SELECT id_cita
+                FROM cita
+                WHERE fecha = %s
+                AND estatus IN ('Agendada', 'Reprogramada')
+                LIMIT 1
+                """,
+                    (fecha,),
+                )
+                if cursor.fetchone() is not None:
+                    return None, "Ya existe una cita agendada en ese horario"
+                # Buscar al alumno y obtener su tutor
+            # Buscar si el alumno ya existe y conservar su tutor
+                cursor.execute(
+                    """
+                    SELECT id_tutor
+                    FROM alumnos
+                    WHERE matricula = %s
+                    """,
+                    (matricula,),
+                )
+                alumno = cursor.fetchone()
+                id_tutor = alumno["id_tutor"] if alumno is not None else None
+                # Si el alumno ya existe, actualizar sus datos
+                if alumno is not None:
+                    cursor.execute(
+                        """
+                        UPDATE alumnos
+                        SET nombre = %s,
+                            a_paterno = %s,
+                            a_materno = %s,
+                            grado = %s,
+                            grupo = %s,
+                            carrera = %s
+                        WHERE matricula = %s
+                        """,
+                        (
+                            datos_alumno["nombre"],
+                            datos_alumno["a_paterno"],
+                            datos_alumno["a_materno"],
+                            datos_alumno["grado"],
+                            datos_alumno["grupo"],
+                            datos_alumno["carrera"],
+                            matricula,
+                        ),
+                    )
+                # Si el alumno no existe, registrarlo
+                if alumno is None:
+                    # Registrar al alumno si todavía no existe
+                    cursor.execute(
+                        """
+                    INSERT INTO alumnos
+                    (matricula, nombre, a_paterno, a_materno,
+                    grado, grupo, carrera, id_tutor)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, NULL)
+                    """,
+                        (
+                            matricula,
+                            datos_alumno["nombre"],
+                            datos_alumno["a_paterno"],
+                            datos_alumno["a_materno"],
+                            datos_alumno["grado"],
+                            datos_alumno["grupo"],
+                            datos_alumno["carrera"],
+                        ),
+                    )
+
+                # Guardar el estado de la transacción antes de intentar crear la cita
+                cursor.execute("SAVEPOINT antes_de_cita")
+                # Generar un folio único
+                for _ in range(5):
+                    folio = secrets.token_hex(4)
+
+                    try:
+                        cursor.execute(
+                            """
+                                INSERT INTO cita
+                                (num_folio, fecha, estatus, motivo,
+                                matricula_alumno, id_tutor, id_psicologa)
+                                VALUES (%s, %s, 'Agendada', %s, %s, %s, %s)
+                                """,
+                            (folio, fecha, motivo, matricula, id_tutor, id_psicologa),
+                        )
+
+                        conexion.commit()
+                        return folio, None
+
+                    except pymysql.err.IntegrityError as error:
+                        # Reintentar solo si el folio está duplicado
+                        if error.args[0] != 1062 or "num_folio" not in str(error).lower():
+                            raise
+
+                        # Deshacer solo el intento de insertar la cita
+                        cursor.execute("ROLLBACK TO SAVEPOINT antes_de_cita")
+
+                        # Volver a intentar con otro folio
+                        continue
+
+            # Deshacer todos los cambios si no se pudo crear la cita
+            conexion.rollback()
+            return None, "No se pudo generar un folio único"
+
+        except pymysql.MySQLError as error:
+            conexion.rollback()
+            print(f"Error al agendar directamente: {error}")
+            return None, "No se pudo registrar la cita"
+
+        finally:
+            conexion.close()
+
+    @staticmethod
     def rechazar(id_cita):
         """Marca una solicitud como 'Rechazada' y le pone la fecha de hoy
-        para que salga hasta arriba en el Historial. Solo si seguía como 'Solicitada'."""
+        para que salga hasta arriba en el Historial. Solo si seguía como 'Solicitada'.
+        """
         conexion = obtener_conexion()
         if conexion is None:
             return False
@@ -198,8 +354,10 @@ class Cita:
         try:
             with conexion.cursor() as cursor:
                 # 1) ¿Ya existe ese alumno?
-                cursor.execute("SELECT id_tutor FROM alumnos WHERE matricula = %s",
-                               (alumno["matricula"],))
+                cursor.execute(
+                    "SELECT id_tutor FROM alumnos WHERE matricula = %s",
+                    (alumno["matricula"],),
+                )
                 existente = cursor.fetchone()
 
                 if existente is None:
@@ -207,15 +365,25 @@ class Cita:
                         """INSERT INTO alumnos (matricula, nombre, a_paterno, a_materno,
                                                 grado, grupo, carrera, id_tutor)
                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-                        (alumno["matricula"], alumno["nombre"], alumno["a_paterno"],
-                         alumno["a_materno"], alumno["grado"], alumno["grupo"],
-                         alumno["carrera"], id_tutor))
+                        (
+                            alumno["matricula"],
+                            alumno["nombre"],
+                            alumno["a_paterno"],
+                            alumno["a_materno"],
+                            alumno["grado"],
+                            alumno["grupo"],
+                            alumno["carrera"],
+                            id_tutor,
+                        ),
+                    )
                 elif existente["id_tutor"] != id_tutor:
                     conexion.rollback()
                     return None, "Esa matrícula ya está registrada con otro tutor"
 
                 # 2) La psicóloga (el sistema tiene una sola)
-                cursor.execute("SELECT id_psicologa FROM psicologa ORDER BY id_psicologa LIMIT 1")
+                cursor.execute(
+                    "SELECT id_psicologa FROM psicologa ORDER BY id_psicologa LIMIT 1"
+                )
                 psicologa = cursor.fetchone()
                 if psicologa is None:
                     conexion.rollback()
@@ -229,8 +397,14 @@ class Cita:
                             """INSERT INTO cita (num_folio, fecha, estatus, motivo,
                                                  matricula_alumno, id_tutor, id_psicologa)
                                VALUES (%s, NULL, 'Solicitada', %s, %s, %s, %s)""",
-                            (folio, motivo, alumno["matricula"], id_tutor,
-                             psicologa["id_psicologa"]))
+                            (
+                                folio,
+                                motivo,
+                                alumno["matricula"],
+                                id_tutor,
+                                psicologa["id_psicologa"],
+                            ),
+                        )
                         conexion.commit()
                         return folio, None
                     except pymysql.err.IntegrityError as error:
@@ -245,7 +419,6 @@ class Cita:
             return None, "No se pudo guardar la solicitud"
         finally:
             conexion.close()
-            
 
     @staticmethod
     def obtener_por_folio(folio):
@@ -292,23 +465,29 @@ class Cita:
             with conexion.cursor() as cursor:
 
                 # Cambiar el estado de la cita
-                cursor.execute("""
+                cursor.execute(
+                    """
                     UPDATE cita
                     SET estatus = 'Realizada'
                     WHERE id_cita = %s
                     AND estatus = 'Agendada'
-                """, (id_cita,))
+                """,
+                    (id_cita,),
+                )
 
                 if cursor.rowcount != 1:
                     conexion.rollback()
                     return False
 
                 # Guardar resumen y recomendación
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT INTO seguimiento
                         (id_cita, resumen, recomendacion)
                     VALUES (%s, %s, %s)
-                """, (id_cita, resumen, recomendacion))
+                """,
+                    (id_cita, resumen, recomendacion),
+                )
 
             conexion.commit()
             return True
@@ -321,7 +500,6 @@ class Cita:
         finally:
             conexion.close()
 
-    
     @staticmethod
     def obtener_seguimientos():
         """Obtiene las citas realizadas con su seguimiento."""
@@ -333,7 +511,8 @@ class Cita:
 
         try:
             with conexion.cursor() as cursor:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT
                         c.id_cita,
                         c.fecha,
@@ -356,7 +535,8 @@ class Cita:
                         ON a.matricula = c.matricula_alumno
                     WHERE c.estatus = 'Realizada'
                     ORDER BY c.fecha DESC
-                """)
+                """
+                )
 
                 return cursor.fetchall()
 
@@ -366,8 +546,7 @@ class Cita:
 
         finally:
             conexion.close()
-        
-    
+
     @staticmethod
     def actualizar_mas_sesiones(id_cita, respuesta):
         """Guarda si el alumno requiere más sesiones."""
@@ -382,16 +561,18 @@ class Cita:
 
         try:
             with conexion.cursor() as cursor:
-                cursor.execute("""
+                cursor.execute(
+                    """
                     UPDATE seguimiento
                     SET requiere_mas_sesiones = %s
                     WHERE id_cita = %s
-                """, (respuesta, id_cita))
+                """,
+                    (respuesta, id_cita),
+                )
 
                 if cursor.rowcount == 0:
                     cursor.execute(
-                        "SELECT id_cita FROM seguimiento WHERE id_cita = %s",
-                        (id_cita,)
+                        "SELECT id_cita FROM seguimiento WHERE id_cita = %s", (id_cita,)
                     )
                     if cursor.fetchone() is None:
                         conexion.rollback()
@@ -408,7 +589,6 @@ class Cita:
         finally:
             conexion.close()
 
-
     @staticmethod
     def agendar_otra_cita(id_cita_anterior, fecha):
         """Crea una nueva cita para un alumno que ya fue atendido."""
@@ -422,7 +602,8 @@ class Cita:
             with conexion.cursor() as cursor:
 
                 # Buscar los datos de la cita anterior
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT
                         matricula_alumno,
                         id_tutor,
@@ -431,37 +612,38 @@ class Cita:
                     FROM cita
                     WHERE id_cita = %s
                     AND estatus = 'Realizada'
-                """, (id_cita_anterior,))
+                """,
+                    (id_cita_anterior,),
+                )
 
                 cita_anterior = cursor.fetchone()
 
                 if cita_anterior is None:
                     return None, "La cita anterior no es válida"
 
-                
                 # Verificar que el horario esté disponible
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT id_cita
                     FROM cita
                     WHERE id_psicologa = %s
                     AND fecha = %s
                     AND estatus = 'Agendada'
                     LIMIT 1
-                """, (
-                    cita_anterior["id_psicologa"],
-                    fecha
-                ))
+                """,
+                    (cita_anterior["id_psicologa"], fecha),
+                )
 
                 if cursor.fetchone() is not None:
                     return None, "La psicóloga ya tiene una cita en ese horario"
-
 
                 # Crear un folio nuevo
                 for intento in range(5):
                     folio = secrets.token_hex(4)
 
                     try:
-                        cursor.execute("""
+                        cursor.execute(
+                            """
                             INSERT INTO cita (
                                 num_folio,
                                 fecha,
@@ -475,14 +657,16 @@ class Cita:
                                 %s, %s, 'Agendada',
                                 %s, %s, %s, %s
                             )
-                        """, (
-                            folio,
-                            fecha,
-                            "Sesión de seguimiento",
-                            cita_anterior["matricula_alumno"],
-                            cita_anterior["id_tutor"],
-                            cita_anterior["id_psicologa"]
-                        ))
+                        """,
+                            (
+                                folio,
+                                fecha,
+                                "Sesión de seguimiento",
+                                cita_anterior["matricula_alumno"],
+                                cita_anterior["id_tutor"],
+                                cita_anterior["id_psicologa"],
+                            ),
+                        )
 
                         conexion.commit()
                         return folio, None
@@ -503,9 +687,10 @@ class Cita:
             conexion.close()
 
 
-
 if __name__ == "__main__":
-    nueva = Cita("F001", "2026-10-15 10:00:00", "Pendiente", "Primera cita", "2024001", 2, 1)
+    nueva = Cita(
+        "F001", "2026-10-15 10:00:00", "Pendiente", "Primera cita", "2024001", 2, 1
+    )
     print("Guardado:", nueva.guardar())
     for c in Cita.obtener_todos():
         print(c.id_cita, c.num_folio, c.estatus)

@@ -58,6 +58,13 @@ CREATE TABLE IF NOT EXISTS `agenda_psico_ute`.`alumnos` (
 ENGINE = InnoDB;
 
 
+ALTER TABLE alumnos
+MODIFY COLUMN id_tutor INT(11) NULL;
+
+ALTER TABLE alumnos
+MODIFY COLUMN carrera VARCHAR(100) NULL;
+
+
 -- -----------------------------------------------------
 -- Table `agenda_psico_ute`.`psicologa`
 -- -----------------------------------------------------

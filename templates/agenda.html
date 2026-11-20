@@ -27,6 +27,11 @@
         <i class="bi bi-arrow-down-up"></i>
         <span id="texto-orden">Más recientes</span>
       </button>
+
+      <button type="button" class="btn btn-azul" id="btn-nueva-cita">
+        <i class="bi bi-calendar-plus"></i>
+        Agendar cita
+      </button>
     </div>
 
     <div class="filtros-alumnos">
@@ -151,6 +156,96 @@
     </div>
   </section>
 </main>
+
+<!-- Modal para agendar una cita nueva -->
+<div class="modal-fondo" id="modal-nueva-cita">
+  <div class="modal">
+    <h3>Agendar nueva cita</h3>
+
+    <form action="{{ url_for('agendar_cita_directa') }}" method="post">
+      <!-- Datos del alumno -->
+      <label for="nuevo-nombre">Nombre</label>
+      <input type="text" id="nuevo-nombre" name="nombre" required />
+
+      <label for="nuevo-apaterno">Apellido paterno</label>
+      <input type="text" id="nuevo-apaterno" name="a_paterno" required />
+
+      <label for="nuevo-amaterno">Apellido materno</label>
+      <input type="text" id="nuevo-amaterno" name="a_materno" required />
+
+      <label for="nueva-carrera">Carrera</label>
+      <select id="nueva-carrera" name="carrera" required>
+        <option value="">Selecciona una carrera</option>
+        <option value="Mecánica">Mecánica</option>
+        <option value="Mantenimiento Industrial">
+          Mantenimiento Industrial
+        </option>
+        <option value="Educación">Educación</option>
+        <option value="Energía y Desarrollo Sostenible">
+          Energía y Desarrollo Sostenible
+        </option>
+        <option value="Negocios y Mercadotecnia">
+          Negocios y Mercadotecnia
+        </option>
+        <option value="Tecnologías de la Información e Innovación Digital">
+          Tecnologías de la Información e Innovación Digital
+        </option>
+        <option value="Logística">Logística</option>
+        <option value="Mecatrónica">Mecatrónica</option>
+      </select>
+
+      <label for="nuevo-grado">Grado</label>
+      <select id="nuevo-grado" name="grado" required>
+        <option value="">Selecciona un grado</option>
+        {% for grado in range(1, 12) %}
+        <option value="{{ grado }}">{{ grado }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="nuevo-grupo">Grupo</label>
+      <input
+        type="text"
+        id="nuevo-grupo"
+        name="grupo"
+        maxlength="1"
+        placeholder="Ejemplo: A"
+        required
+      />
+      <label for="nueva-matricula">Matrícula del alumno</label>
+      <input
+        type="text"
+        id="nueva-matricula"
+        name="matricula"
+        placeholder="Escribe la matrícula"
+        required
+      />
+
+      <label for="nueva-fecha">Fecha</label>
+      <input type="date" id="nueva-fecha" name="fecha" required />
+
+      <label for="nueva-hora">Hora</label>
+      <input type="time" id="nueva-hora" name="hora" required />
+
+      <label for="nuevo-motivo">Motivo</label>
+      <textarea
+        id="nuevo-motivo"
+        name="motivo"
+        rows="3"
+        placeholder="Motivo de la cita"
+        maxlength="255"
+        required
+      ></textarea>
+
+      <div class="modal-botones">
+        <button type="button" class="btn btn-gris" id="btn-cancelar-nueva">
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn btn-azul">Guardar cita</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <div class="modal-fondo" id="modal-reprogramar">
   <div class="modal">
@@ -280,6 +375,41 @@
 <script>
   iniciarFiltros({
     tablaId: "tabla-citas",
+  });
+</script>
+
+<script>
+  // Elementos del modal de nueva cita
+  const modalNuevaCita = document.getElementById("modal-nueva-cita");
+  const botonNuevaCita = document.getElementById("btn-nueva-cita");
+  const cancelarNuevaCita = document.getElementById("btn-cancelar-nueva");
+  const fechaNuevaCita = document.getElementById("nueva-fecha");
+
+  // Obtener la fecha local para evitar seleccionar días anteriores
+  const hoy = new Date();
+  const fechaLocal = [
+    hoy.getFullYear(),
+    String(hoy.getMonth() + 1).padStart(2, "0"),
+    String(hoy.getDate()).padStart(2, "0"),
+  ].join("-");
+
+  fechaNuevaCita.min = fechaLocal;
+
+  // Abrir modal
+  botonNuevaCita.addEventListener("click", function () {
+    modalNuevaCita.classList.add("abierto");
+  });
+
+  // Cerrar con Cancelar
+  cancelarNuevaCita.addEventListener("click", function () {
+    modalNuevaCita.classList.remove("abierto");
+  });
+
+  // Cerrar al hacer clic fuera del formulario
+  modalNuevaCita.addEventListener("click", function (evento) {
+    if (evento.target === modalNuevaCita) {
+      modalNuevaCita.classList.remove("abierto");
+    }
   });
 </script>
 
