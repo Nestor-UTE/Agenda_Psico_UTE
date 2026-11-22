@@ -32,6 +32,66 @@ block contenido %}
 
   <section class="caja">
     <h3>Próximas citas</h3>
+    <!-- Navegación semanal de citas -->
+    <div class="barra-semanal">
+      {% set meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] %}
+      <div class="barra-semanal-encabezado">
+        <span>
+          <i class="bi bi-calendar3" aria-hidden="true"></i>
+          {% if dias_semana[0].month == dias_semana[6].month and
+          dias_semana[0].year == dias_semana[6].year %} {{ dias_semana[0].day }}
+          al {{ dias_semana[6].day }} de {{ meses[dias_semana[6].month - 1] }}
+          de {{ dias_semana[6].year }} {% else %} {{ dias_semana[0].day }} de {{
+          meses[dias_semana[0].month - 1] }} al {{ dias_semana[6].day }} de {{
+          meses[dias_semana[6].month - 1] }} de {{ dias_semana[6].year }} {%
+          endif %}
+        </span>
+      </div>
+      <nav class="barra-semanal-navegacion" aria-label="Calendario semanal">
+        <!-- Semana anterior -->
+        <a
+          href="{{ url_for('panel_psicologa', fecha=semana_anterior) }}"
+          class="semana-flecha"
+          aria-label="Semana anterior"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </a>
+
+        <!-- Los 7 días -->
+        <div class="dias-semana">
+          {% for dia in dias_semana %}
+          <a
+            href="{{ url_for('panel_psicologa', fecha=dia.isoformat()) }}"
+            class="dia-semana {{ 'activo' if dia == fecha_seleccionada else '' }}"
+            aria-current="{{ 'date' if dia == fecha_seleccionada else 'false' }}"
+          >
+            <span class="dia-nombre">
+              {{ ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][loop.index0]
+              }}
+            </span>
+
+            <span class="dia-numero">{{ dia.day }}</span>
+
+            {% if dia in fechas_con_cita %}
+            <span class="dia-punto" title="Hay citas programadas"></span>
+            {% else %}
+            <span class="dia-espacio"></span>
+            {% endif %}
+          </a>
+          {% endfor %}
+        </div>
+
+        <!-- Semana siguiente -->
+        <a
+          href="{{ url_for('panel_psicologa', fecha=semana_siguiente) }}"
+          class="semana-flecha"
+          aria-label="Semana siguiente"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </nav>
+    </div>
 
     <div class="tabla-scroll">
       <table>
@@ -84,7 +144,17 @@ block contenido %}
           </tr>
           {% else %}
           <tr>
-            <td colspan="6">No hay próximas citas programadas.</td>
+            <td colspan="6" class="celda-sin-citas">
+              <i class="bi bi-calendar2-check" aria-hidden="true"></i>
+
+              <strong>¡Día libre de citas!</strong>
+
+              <p>No hay citas programadas para este día.</p>
+
+              <small>
+                Selecciona otro día o cambia de semana para consultar más citas.
+              </small>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

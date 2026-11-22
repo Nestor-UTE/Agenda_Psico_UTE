@@ -78,17 +78,46 @@ def panel_psicologa():
     seguimientos = Cita.obtener_seguimientos()
 
     # Obtener la fecha actual
-    from datetime import date
+    from datetime import date, timedelta
     hoy = date.today()
+    
+    # Obtener el día seleccionado (por defecto, hoy)
+    fecha_parametro = request.args.get("fecha", "")
 
-    # Obtener únicamente las próximas citas
+    try:
+        fecha_seleccionada = (
+            date.fromisoformat(fecha_parametro)
+            if fecha_parametro else hoy
+        )
+    except ValueError:
+        fecha_seleccionada = hoy
+
+    # Calcular los 7 días de la semana seleccionada
+    inicio_semana = fecha_seleccionada - timedelta(
+        days=fecha_seleccionada.weekday()
+    )
+
+    dias_semana = [
+        inicio_semana + timedelta(days=i)
+        for i in range(7)
+    ]
+    
+    # Identificar qué días tienen citas agendadas
+    fechas_con_cita = {
+        cita["fecha"].date()
+        for cita in citas
+        if cita["fecha"]
+    }
+
+    # Obtener las citas del día seleccionado
     proximas_citas = sorted(
-    [
-        cita for cita in citas
-        if cita["fecha"] and cita["fecha"].date() >= hoy
-    ],
-    key=lambda cita: cita["fecha"]
-    )[:5]
+        [
+            cita for cita in citas
+            if cita["fecha"]
+            and cita["fecha"].date() == fecha_seleccionada
+        ],
+        key=lambda cita: cita["fecha"]
+    )
 
     # Contar las citas programadas para hoy
     citas_hoy = sum(
@@ -105,6 +134,11 @@ def panel_psicologa():
             s["matricula"] for s in seguimientos
         }),
         proximas_citas=proximas_citas,
+        fecha_seleccionada=fecha_seleccionada,
+        dias_semana=dias_semana,
+        fechas_con_cita=fechas_con_cita,
+        semana_anterior=(inicio_semana - timedelta(days=7)).isoformat(),
+        semana_siguiente=(inicio_semana + timedelta(days=7)).isoformat(),
     )
 
 @app.route("/panel-psicologa/solicitudes")

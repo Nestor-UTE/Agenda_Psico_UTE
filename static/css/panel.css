@@ -1022,3 +1022,237 @@ a.btn {
     margin-top: 0;
     margin-left: 8px;
 }
+
+/* ===== Calendario semanal de Inicio ===== */
+.barra-semanal {
+    margin: 18px 0 22px;
+    padding: 14px 18px;
+    background: #fff;
+    border: 1px solid #e5ebef;
+    border-radius: 12px;
+}
+
+.barra-semanal-encabezado {
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #37817e;
+}
+
+.barra-semanal-navegacion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.semana-flecha {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+    height: 38px;
+    border-radius: 9px;
+    color: #37817e;
+    background: #edf6f4;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.semana-flecha:hover {
+    background: #d8ece7;
+}
+
+.dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.dia-semana {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px 3px;
+    border-radius: 9px;
+    background: #f5f7f9;
+    border: 1px solid transparent;
+    color: #454d58;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.dia-semana:hover {
+    background: #e9f3f0;
+}
+
+.dia-semana.activo {
+    background: #e0f2ee;
+    border-color: #addbd0;
+    color: #277d79;
+}
+
+.dia-nombre {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.dia-numero {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.dia-punto,
+.dia-espacio {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.dia-punto {
+    background: #329c84;
+}
+
+.dia-semana:focus-visible,
+.semana-flecha:focus-visible {
+    outline: 2px solid #277d79;
+    outline-offset: 2px;
+}
+
+/* Ajustes para pantallas pequeñas */
+@media (max-width: 600px) {
+    .barra-semanal {
+        padding: 12px 8px;
+    }
+
+    .barra-semanal-navegacion {
+        gap: 5px;
+    }
+
+    .dias-semana {
+        gap: 3px;
+    }
+
+    .semana-flecha {
+        flex-basis: 26px;
+    }
+
+    .dia-semana {
+        padding: 8px 1px;
+    }
+
+    .dia-nombre {
+        font-size: 10px;
+    }
+
+    .dia-numero {
+        font-size: 13px;
+    }
+}
+
+/* ===== Mensaje cuando no hay citas ===== */
+.fila-sin-citas td {
+    padding: 18px 10px;
+}
+/* Contenedor del mensaje */
+.contenido .caja .tabla-scroll .fila-sin-citas .sin-citas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 28px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    background: #f6faf9;
+    border-radius: 12px;
+}
+
+/* Icono de calendario */
+.sin-citas-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    background: #e0f2ee;
+    border-radius: 50%;
+    color: #37817e;
+    font-size: 24px;
+}
+
+/* Título */
+.sin-citas h4 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #37817e;
+}
+
+/* Descripción */
+.sin-citas p {
+    margin: 0;
+    font-size: 14px;
+    color: #596777;
+}
+
+/* Instrucción para navegar */
+.sin-citas > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #7b8795;
+    line-height: 1.5;
+}
+
+/* ===== Mensaje cuando no hay citas ===== */
+.contenido .tabla-scroll td.celda-sin-citas {
+    text-align: center;
+    padding: 30px 16px;
+    background-color: #f6faf9;
+}
+
+/* Icono del calendario */
+.celda-sin-citas > i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background-color: #e0f2ee;
+    color: #37817e;
+    font-size: 24px;
+}
+
+/* Título */
+.celda-sin-citas > strong {
+    display: block;
+    color: #37817e;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+/* Descripción */
+.celda-sin-citas > p {
+    margin: 0 0 8px;
+    color: #596777;
+    font-size: 14px;
+}
+
+/* Indicación para cambiar de día */
+.celda-sin-citas > small {
+    display: block;
+    color: #84919e;
+    font-size: 12px;
+    line-height: 1.5;
+}
