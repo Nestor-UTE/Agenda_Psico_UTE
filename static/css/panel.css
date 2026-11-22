@@ -1256,3 +1256,37 @@ a.btn {
     font-size: 12px;
     line-height: 1.5;
 }
+
+/* Próxima cita del tutor: fecha y hora sin recuadros */
+.resumen-item .cita-resumen-fecha {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px 0 6px;
+}
+
+/* Fecha grande en verde */
+.resumen-item .cita-resumen-fecha .fecha-etiqueta {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #277d79;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* Hora en azul */
+.resumen-item .cita-resumen-fecha .hora-etiqueta {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #3d70b2;
+    font-size: 19px;
+    font-weight: 600;
+    gap: 5px;
+}
+
+.resumen-item .cita-resumen-fecha .hora-etiqueta i {
+    font-size: 17px;
+}

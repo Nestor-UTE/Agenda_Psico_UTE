@@ -678,10 +678,94 @@ def eliminar_tutor(id_tutor):
 
 
 
+
 @app.route("/panel-profesor")
 @login_requerido("tutor")
 def panel_profesor():
-    return render_template("inicio_profesor.html", pagina="inicio")
+    id_tutor = session["id"]
+
+    # Obtener los alumnos asignados al tutor
+    alumnos = Alumnos.obtener_estado_por_tutor(id_tutor)
+    
+    # Preparar el calendario semanal del tutor
+    from datetime import date, timedelta
+
+    hoy = date.today()
+    fecha_parametro = request.args.get("fecha", "")
+
+    try:
+        fecha_seleccionada = (
+            date.fromisoformat(fecha_parametro)
+            if fecha_parametro else hoy
+        )
+    except ValueError:
+        fecha_seleccionada = hoy
+
+    # Calcular el lunes de la semana seleccionada
+    inicio_semana = fecha_seleccionada - timedelta(
+        days=fecha_seleccionada.weekday()
+    )
+
+    # Generar los siete días de la semana
+    dias_semana = [
+        inicio_semana + timedelta(days=i)
+        for i in range(7)
+    ]
+    
+    # Obtener las citas agendadas del tutor
+    citas = Cita.obtener_agenda_por_tutor(id_tutor)
+    # Contar las solicitudes pendientes del tutor
+    solicitudes_pendientes = Cita.contar_solicitudes_por_tutor(id_tutor)
+    # Contar las recomendaciones registradas para el tutor
+    seguimientos = Seguimiento.obtener_por_tutor(id_tutor)
+
+    total_recomendaciones = sum(
+        1 for s in seguimientos
+        if s["recomendacion"] and s["recomendacion"].strip()
+    )
+    
+    # Obtener la próxima cita real del tutor
+    from datetime import datetime
+
+    ahora = datetime.now()
+
+    proxima_cita = next(
+        (
+            cita for cita in citas
+            if cita["fecha"] and cita["fecha"] >= ahora
+        ),
+        None
+    )
+
+
+    # Identificar los días que tienen citas
+    fechas_con_cita = {
+        cita["fecha"].date()
+        for cita in citas
+        if cita["fecha"]
+    }
+    # Obtener las citas del día seleccionado
+    citas_dia = [
+        cita for cita in citas
+        if cita["fecha"]
+        and cita["fecha"].date() == fecha_seleccionada
+    ]
+    return render_template(
+        "inicio_profesor.html",
+        pagina="inicio",
+        alumnos=alumnos,
+        citas_dia=citas_dia,
+        proxima_cita=proxima_cita,
+        solicitudes_pendientes=solicitudes_pendientes,
+        total_recomendaciones=total_recomendaciones,
+        fecha_seleccionada=fecha_seleccionada,
+        dias_semana=dias_semana,
+        fechas_con_cita=fechas_con_cita,
+        semana_anterior=(inicio_semana - timedelta(days=7)).isoformat(),
+        semana_siguiente=(inicio_semana + timedelta(days=7)).isoformat()
+    )
+
+
 
 
 @app.route("/panel-profesor/solicitar-cita", methods=["GET", "POST"])

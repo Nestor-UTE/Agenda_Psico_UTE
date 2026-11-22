@@ -110,6 +110,78 @@ class Cita:
             return []
         finally:
             conexion.close()
+    
+    
+    @staticmethod
+    def obtener_agenda_por_tutor(id_tutor):
+        """Obtiene las citas agendadas de un tutor."""
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return []
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("""
+                    SELECT
+                        c.id_cita,
+                        c.fecha,
+                        c.estatus,
+                        c.motivo,
+                        a.matricula,
+                        CONCAT(
+                            a.nombre, ' ',
+                            a.a_paterno, ' ',
+                            COALESCE(a.a_materno, '')
+                        ) AS alumno,
+                        a.grado,
+                        a.grupo
+                    FROM cita c
+                    INNER JOIN alumnos a
+                        ON a.matricula = c.matricula_alumno
+                    WHERE c.id_tutor = %s
+                      AND c.estatus = 'Agendada'
+                      AND c.fecha IS NOT NULL
+                    ORDER BY c.fecha ASC
+                """, (id_tutor,))
+
+                return cursor.fetchall()
+
+        except pymysql.MySQLError as error:
+            print(f"Error al consultar citas del tutor: {error}")
+            return []
+
+        finally:
+            conexion.close()
+            
+    @staticmethod
+    def contar_solicitudes_por_tutor(id_tutor):
+        """Cuenta las solicitudes pendientes de un tutor."""
+
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return 0
+
+        try:
+            with conexion.cursor() as cursor:
+                cursor.execute("""
+                    SELECT COUNT(*) AS total
+                    FROM cita
+                    WHERE id_tutor = %s
+                      AND estatus = 'Solicitada'
+                """, (id_tutor,))
+
+                resultado = cursor.fetchone()
+                return resultado["total"]
+
+        except pymysql.MySQLError as error:
+            print(f"Error al contar solicitudes: {error}")
+            return 0
+
+        finally:
+            conexion.close()
 
     @staticmethod
     def obtener_historial():

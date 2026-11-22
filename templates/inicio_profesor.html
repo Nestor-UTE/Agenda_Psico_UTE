@@ -1,8 +1,5 @@
-{% extends "base_profesor.html" %}
-
-{% block titulo %}Inicio{% endblock %}
-
-{% block contenido %}
+{% extends "base_profesor.html" %} {% block titulo %}Inicio{% endblock %} {%
+block contenido %}
 <main class="contenido">
   <h2>Inicio</h2>
   <p class="subtitulo">Resumen de tus alumnos y citas</p>
@@ -10,21 +7,181 @@
   <div class="resumen-grid">
     <div class="resumen-item">
       <i class="bi bi-calendar-event"></i>
-      <p class="numero">15/10/2026 · 10:00</p>
-      <p>Próxima cita (Alumno de ejemplo 1)</p>
+
+      {% if proxima_cita %}
+      <div class="cita-resumen-fecha">
+        <time
+          class="fecha-etiqueta"
+          datetime="{{ proxima_cita.fecha.strftime('%Y-%m-%d') }}"
+        >
+          {{ proxima_cita.fecha.strftime('%d') }} {{ ['ene', 'feb', 'mar',
+          'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov',
+          'dic'][proxima_cita.fecha.month - 1] }} {{
+          proxima_cita.fecha.strftime('%Y') }}
+        </time>
+
+        <span class="hora-etiqueta">
+          <i class="bi bi-clock" aria-hidden="true"></i>
+          {{ proxima_cita.fecha.strftime('%H:%M') }}
+        </span>
+      </div>
+      <p>Próxima cita: {{ proxima_cita.alumno }}</p>
+      {% else %}
+      <p class="numero">Sin próximas citas</p>
+      <p>No tienes citas pendientes por atender.</p>
+      {% endif %}
     </div>
+
     <div class="resumen-item">
       <i class="bi bi-hourglass-split"></i>
-      <p class="numero">2</p>
+      <p class="numero">{{ solicitudes_pendientes }}</p>
       <p>Solicitudes esperando fecha</p>
     </div>
     <div class="resumen-item">
       <i class="bi bi-chat-square-text"></i>
-      <p class="numero">1</p>
-      <p>Recomendaciones nuevas</p>
+      <p class="numero">{{ total_recomendaciones }}</p>
+      <p>Recomendaciones registradas</p>
     </div>
   </div>
 
-  <a href="{{ url_for('solicitar_cita') }}" class="btn btn-azul">Solicitar una cita</a>
+  <!-- Calendario semanal del tutor -->
+  <section class="caja">
+    <h3>Citas de mis alumnos</h3>
+
+    <div class="barra-semanal">
+      {% set meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'] %}
+
+      <div class="barra-semanal-encabezado">
+        <span>
+          <i class="bi bi-calendar3" aria-hidden="true"></i>
+
+          {% if dias_semana[0].month == dias_semana[6].month and
+          dias_semana[0].year == dias_semana[6].year %} {{ dias_semana[0].day }}
+          al {{ dias_semana[6].day }} de {{ meses[dias_semana[6].month - 1] }}
+          de {{ dias_semana[6].year }} {% else %} {{ dias_semana[0].day }} de {{
+          meses[dias_semana[0].month - 1] }} al {{ dias_semana[6].day }} de {{
+          meses[dias_semana[6].month - 1] }} de {{ dias_semana[6].year }} {%
+          endif %}
+        </span>
+      </div>
+
+      <nav class="barra-semanal-navegacion" aria-label="Calendario semanal">
+        <!-- Semana anterior -->
+        <a
+          href="{{ url_for('panel_profesor', fecha=semana_anterior) }}"
+          class="semana-flecha"
+          aria-label="Semana anterior"
+        >
+          <i class="bi bi-chevron-left"></i>
+        </a>
+
+        <!-- Días de la semana -->
+        <div class="dias-semana">
+          {% for dia in dias_semana %}
+
+          <a
+            href="{{ url_for('panel_profesor', fecha=dia.isoformat()) }}"
+            class="dia-semana {{ 'activo' if dia == fecha_seleccionada else '' }}"
+            aria-current="{{ 'date' if dia == fecha_seleccionada else 'false' }}"
+          >
+            <span class="dia-nombre">
+              {{ ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'][loop.index0]
+              }}
+            </span>
+
+            <span class="dia-numero"> {{ dia.day }} </span>
+
+            {% if dia in fechas_con_cita %}
+            <span class="dia-punto" title="Hay citas programadas"></span>
+            {% else %}
+            <span class="dia-espacio"></span>
+            {% endif %}
+          </a>
+
+          {% endfor %}
+        </div>
+
+        <!-- Semana siguiente -->
+        <a
+          href="{{ url_for('panel_profesor', fecha=semana_siguiente) }}"
+          class="semana-flecha"
+          aria-label="Semana siguiente"
+        >
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Citas del día seleccionado -->
+    <div class="tabla-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Alumno</th>
+            <th>Grado</th>
+            <th>Grupo</th>
+            <th>Motivo</th>
+            <th>Estatus</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for c in citas_dia %}
+          <tr>
+            <td>
+              <time
+                class="fecha-etiqueta"
+                datetime="{{ c.fecha.strftime('%Y-%m-%d') }}"
+              >
+                {{ c.fecha.strftime('%d') }} {{ ['ene', 'feb', 'mar', 'abr',
+                'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov',
+                'dic'][c.fecha.month - 1] }} {{ c.fecha.strftime('%Y') }}
+              </time>
+
+              <span class="hora-etiqueta">
+                <i class="bi bi-clock" aria-hidden="true"></i>
+                {{ c.fecha.strftime('%H:%M') }}
+              </span>
+            </td>
+
+            <td>{{ c.alumno }}</td>
+            <td>{{ c.grado }}</td>
+            <td>{{ c.grupo }}</td>
+            <td class="columna-motivo">
+              <span class="texto-motivo" title="{{ c.motivo or '-' }}">
+                {{ c.motivo or '-' }}
+              </span>
+            </td>
+            <td>
+              <span class="estado estado-{{ c.estatus|lower }}">
+                {{ c.estatus }}
+              </span>
+            </td>
+          </tr>
+
+          {% else %}
+          <tr>
+            <td colspan="6" class="celda-sin-citas">
+              <i class="bi bi-calendar2-check" aria-hidden="true"></i>
+
+              <strong>¡Día libre de citas!</strong>
+
+              <p>No hay citas programadas para este día.</p>
+
+              <small>
+                Selecciona otro día o cambia de semana para consultar más citas.
+              </small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <a href="{{ url_for('solicitar_cita') }}" class="btn btn-azul"
+    >Solicitar una cita</a
+  >
 </main>
 {% endblock %}
