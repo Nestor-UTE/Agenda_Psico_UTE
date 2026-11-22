@@ -137,6 +137,7 @@
                 type="button"
                 class="btn btn-gris btn-reprogramar"
                 data-alumno="{{ c.alumno }}"
+                data-id="{{ c.id_cita }}"
               >
                 Reprogramar
               </button>
@@ -254,7 +255,11 @@
       Alumno: <strong id="modal-nombre-repro"></strong>
     </p>
 
-    <form action="#" method="post" id="form-reprogramar">
+    <form
+      action="{{ url_for('reprogramar_cita') }}"
+      method="post"
+      id="form-reprogramar"
+    >
       <input type="hidden" name="id_cita" id="id-cita-reprogramar" />
       <label for="fecha-repro">Nueva fecha</label>
       <input type="date" id="fecha-repro" name="fecha" required />
@@ -325,6 +330,7 @@
   botonesRepro.forEach(function (boton) {
     boton.addEventListener("click", function () {
       nombreRepro.textContent = boton.dataset.alumno;
+      document.getElementById("id-cita-reprogramar").value = boton.dataset.id;
       modalRepro.classList.add("abierto");
     });
   });

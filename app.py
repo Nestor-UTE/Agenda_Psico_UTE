@@ -236,6 +236,35 @@ def agenda():
     citas = Cita.obtener_agenda()
     return render_template("agenda.html", pagina="agenda", citas=citas)
 
+@app.route("/panel-psicologa/agenda/reprogramar", methods=["POST"])
+@login_requerido("psicologa")
+def reprogramar_cita():
+    try:
+        id_cita = int(request.form.get("id_cita", ""))
+        fecha = request.form.get("fecha", "")
+        hora = request.form.get("hora", "")
+
+        nueva_fecha = datetime.strptime(
+            f"{fecha} {hora}", "%Y-%m-%d %H:%M"
+        )
+
+    except (ValueError, TypeError):
+        flash("La fecha o la cita no son válidas", "error")
+        return redirect(url_for("agenda"))
+
+    if nueva_fecha <= datetime.now():
+        flash("No puedes reprogramar una cita en el pasado", "error")
+        return redirect(url_for("agenda"))
+
+    exito, error = Cita.reprogramar(id_cita, nueva_fecha)
+
+    if exito:
+        flash("Cita reprogramada correctamente", "ok")
+    else:
+        flash(error, "error")
+
+    return redirect(url_for("agenda"))
+
 
 @app.route("/panel-psicologa/cita/realizada", methods=["POST"])
 @login_requerido("psicologa")

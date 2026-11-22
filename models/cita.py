@@ -191,6 +191,76 @@ class Cita:
             return False
         finally:
             conexion.close()
+            
+    
+    @staticmethod
+    def reprogramar(id_cita, nueva_fecha):
+        conexion = obtener_conexion()
+
+        if conexion is None:
+            return False, "No hay conexión con la base de datos"
+
+        try:
+            with conexion.cursor() as cursor:
+                # Comprobar que la cita existe y sigue agendada
+                cursor.execute(
+                    """
+                    SELECT id_psicologa
+                    FROM cita
+                    WHERE id_cita = %s
+                    AND estatus = 'Agendada'
+                    """,
+                    (id_cita,)
+                )
+
+                cita = cursor.fetchone()
+
+                if cita is None:
+                    return False, "La cita ya no está agendada"
+
+                # Verificar que el nuevo horario esté libre
+                cursor.execute(
+                    """
+                    SELECT id_cita
+                    FROM cita
+                    WHERE fecha = %s
+                    AND id_psicologa = %s
+                    AND id_cita != %s
+                    AND estatus IN ('Agendada', 'Reprogramada')
+                    LIMIT 1
+                    """,
+                    (nueva_fecha, cita["id_psicologa"], id_cita)
+                )
+
+                if cursor.fetchone() is not None:
+                    return False, "Ya existe una cita en ese horario"
+
+                # Actualizar fecha y hora de la cita
+                cursor.execute(
+                    """
+                    UPDATE cita
+                    SET fecha = %s
+                    WHERE id_cita = %s
+                    AND estatus = 'Agendada'
+                    """,
+                    (nueva_fecha, id_cita)
+                )
+
+                if cursor.rowcount != 1:
+                    conexion.rollback()
+                    return False, "No se pudo actualizar la cita"
+
+            conexion.commit()
+            return True, None
+
+        except pymysql.MySQLError as error:
+            conexion.rollback()
+            print(f"Error al reprogramar: {error}")
+            return False, "No se pudo reprogramar la cita"
+
+        finally:
+            conexion.close()
+
 
     @staticmethod
     def agendar_directamente(datos_alumno, fecha, motivo, id_psicologa):
