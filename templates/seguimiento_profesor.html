@@ -29,7 +29,9 @@
         </div>
 
         <span class="estado estado-realizada">
-          Última sesión: {{ s.fecha.strftime('%d/%m/%Y') }}
+          Última sesión: {{ s.fecha.strftime('%d') }} {{ ['ene', 'feb', 'mar',
+          'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov',
+          'dic'][s.fecha.month - 1] }} {{ s.fecha.strftime('%Y') }}
         </span>
       </header>
 
@@ -60,33 +62,25 @@
 </main>
 {% endblock %} {% block scripts %}
 <script>
+  const buscador = document.getElementById("buscador");
+  const tarjetas = document.querySelectorAll("#lista-seguimiento .tarjeta-seg");
+  const sinResultados = document.getElementById("sin-resultados-seguimiento");
 
-const buscador = document.getElementById("buscador");
-const tarjetas = document.querySelectorAll(
-    "#lista-seguimiento .tarjeta-seg"
-);
-const sinResultados = document.getElementById(
-    "sin-resultados-seguimiento"
-);
-
-buscador.addEventListener("input", function () {
+  buscador.addEventListener("input", function () {
     const texto = buscador.value.trim().toLowerCase();
     let visibles = 0;
 
     tarjetas.forEach(function (tarjeta) {
-        const coincide = tarjeta.textContent
-            .toLowerCase()
-            .includes(texto);
+      const coincide = tarjeta.textContent.toLowerCase().includes(texto);
 
-        tarjeta.style.display = coincide ? "" : "none";
+      tarjeta.style.display = coincide ? "" : "none";
 
-        if (coincide) {
-            visibles++;
-        }
+      if (coincide) {
+        visibles++;
+      }
     });
 
     sinResultados.hidden = visibles > 0 || tarjetas.length === 0;
-});
-
+  });
 </script>
 {% endblock %}

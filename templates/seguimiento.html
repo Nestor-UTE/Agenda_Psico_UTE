@@ -34,8 +34,12 @@
           </p>
         </div>
 
-        <span class="estado estado-realizada">
-          Última sesión: {{ s.fecha.strftime('%d/%m/%Y') }}
+        <span class="estado estado-realizada">  
+          Última sesión:
+          {{ s.fecha.strftime('%d') }}
+          {{ ['ene', 'feb', 'mar', 'abr', 'may', 'jun',
+          'jul', 'ago', 'sep', 'oct', 'nov', 'dic'][s.fecha.month - 1] }}
+          {{ s.fecha.strftime('%Y') }}
         </span>
       </header>
 

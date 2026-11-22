@@ -149,8 +149,21 @@
 
             <td>
               {% if a.fecha and a.estatus in ['Agendada', 'Realizada',
-              'Reprogramada'] %} {{ a.fecha.strftime('%d/%m/%Y · %H:%M') }} {%
-              else %} — {% endif %}
+              'Reprogramada'] %}
+              <time
+                class="fecha-etiqueta"
+                datetime="{{ a.fecha.strftime('%Y-%m-%d') }}"
+              >
+                {{ a.fecha.strftime('%d') }} {{ ['ene', 'feb', 'mar', 'abr',
+                'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov',
+                'dic'][a.fecha.month - 1] }} {{ a.fecha.strftime('%Y') }}
+              </time>
+
+              <span class="hora-etiqueta">
+                <i class="bi bi-clock" aria-hidden="true"></i>
+                {{ a.fecha.strftime('%H:%M') }}
+              </span>
+              {% else %} — {% endif %}
             </td>
 
             <td class="acciones">
@@ -186,15 +199,12 @@
     </div>
   </section>
 </main>
-{% endblock %} 
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script src="{{ url_for('static', filename='js/filtros.js') }}"></script>
 
 <script>
-    iniciarFiltros({
-        tablaId: "tabla-datos"
-    });
+  iniciarFiltros({
+    tablaId: "tabla-datos",
+  });
 </script>
 {% endblock %}
-

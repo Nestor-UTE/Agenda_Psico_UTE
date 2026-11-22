@@ -977,3 +977,48 @@ a.btn {
     width: auto;
     box-sizing: border-box;
 }
+
+
+/* Resaltar las fechas de la agenda */
+#tabla-citas time,
+.fecha-etiqueta {
+    display: inline-block;
+    background-color: #e3f3ef;
+    color: #277d79;
+    border: 1px solid #b8ded6;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* Diseño de las horas en las tablas */
+.hora-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background-color: #eaf2ff;
+    color: #3d70b2;
+    border: 1px solid #c8dcf7;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.hora-etiqueta i {
+    font-size: 13px;
+}
+
+/* Fecha y hora juntas en Próximas citas */
+.contenido .caja .tabla-scroll td:first-child > div {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.contenido .caja .tabla-scroll td:first-child > div + div {
+    margin-top: 0;
+    margin-left: 8px;
+}

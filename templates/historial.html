@@ -1,9 +1,5 @@
-
-{% extends "base_psicologa.html" %}
-
-{% block titulo %}Historial{% endblock %}
-
-{% block contenido %}
+{% extends "base_psicologa.html" %} {% block titulo %}Historial{% endblock %} {%
+block contenido %}
 <main class="contenido">
   <h2>Historial</h2>
   <p class="subtitulo">Registro de todas las citas anteriores</p>
@@ -71,11 +67,7 @@
       <!-- Fecha -->
       <div class="filtro-campo filtro-campo-fecha">
         <i class="bi bi-calendar3"></i>
-        <input
-          type="date"
-          id="filtro-fecha"
-          aria-label="Filtrar por fecha"
-        />
+        <input type="date" id="filtro-fecha" aria-label="Filtrar por fecha" />
 
         <button
           type="button"
@@ -117,8 +109,28 @@
             data-estado="{{ c.estatus }}"
             data-fecha="{{ c.fecha.strftime('%Y-%m-%d') if c.fecha else '' }}"
           >
-            <td>{{ c.fecha.strftime('%d/%m/%Y') if c.fecha else '—' }}</td>
-            <td>{{ c.fecha.strftime('%H:%M') if c.fecha else '—' }}</td>
+            <td>
+              {% if c.fecha %}
+              <time
+                class="fecha-etiqueta"
+                datetime="{{ c.fecha.strftime('%Y-%m-%d') }}"
+              >
+                {{ c.fecha.strftime('%d') }} {{ ['ene', 'feb', 'mar', 'abr',
+                'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov',
+                'dic'][c.fecha.month - 1] }} {{ c.fecha.strftime('%Y') }}
+              </time>
+              {% else %} — {% endif %}
+            </td>
+
+            <td>
+              {% if c.fecha %}
+              <span class="hora-etiqueta">
+                <i class="bi bi-clock" aria-hidden="true"></i>
+                {{ c.fecha.strftime('%H:%M') }}
+              </span>
+              {% else %} — {% endif %}
+            </td>
+
             <td>{{ c.alumno }}</td>
             <td>{{ c.matricula }}</td>
             <td>{{ c.grupo[:-1] }}</td>
@@ -144,14 +156,12 @@
     </div>
   </section>
 </main>
-{% endblock %}
-
-{% block scripts %}
+{% endblock %} {% block scripts %}
 <script src="{{ url_for('static', filename='js/filtros.js') }}"></script>
 
 <script>
   iniciarFiltros({
-    tablaId: "tabla-datos"
+    tablaId: "tabla-datos",
   });
 </script>
 {% endblock %}

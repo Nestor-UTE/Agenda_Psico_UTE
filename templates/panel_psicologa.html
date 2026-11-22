@@ -49,7 +49,25 @@ block contenido %}
         <tbody>
           {% for c in proximas_citas %}
           <tr>
-            <td>{{ c.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+            <td>
+              <div>
+                <time
+                  class="fecha-etiqueta"
+                  datetime="{{ c.fecha.strftime('%Y-%m-%d') }}"
+                >
+                  {{ c.fecha.strftime('%d') }} {{ ['ene', 'feb', 'mar', 'abr',
+                  'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov',
+                  'dic'][c.fecha.month - 1] }} {{ c.fecha.strftime('%Y') }}
+                </time>
+              </div>
+              <div>
+                <span class="hora-etiqueta">
+                  <i class="bi bi-clock" aria-hidden="true"></i>
+                  {{ c.fecha.strftime('%H:%M') }}
+                </span>
+              </div>
+            </td>
+
             <td>{{ c.alumno }}</td>
             <td>{{ c.grupo[:-1] }}</td>
             <td>{{ c.grupo[-1:] }}</td>
