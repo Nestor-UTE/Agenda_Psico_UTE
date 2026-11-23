@@ -253,7 +253,31 @@
             );
 
         });
+        // Cambiar el texto del campo según el rol seleccionado
+        const campoUsuario = document.getElementById("usuario");
+        const etiquetaUsuario = document.querySelector('label[for="usuario"]');
+        const roles = document.querySelectorAll('input[name="rol"]');
 
+        function actualizarCampoUsuario() {
+            const esTutor = document.getElementById("rol-tutor").checked;
+
+            if (esTutor) {
+                etiquetaUsuario.textContent = "Correo electrónico";
+                campoUsuario.placeholder = "Ingresa tu correo electrónico";
+                campoUsuario.autocomplete = "email";
+            } else {
+                etiquetaUsuario.textContent = "Nombre de usuario";
+                campoUsuario.placeholder = "Ingresa tu usuario";
+                campoUsuario.autocomplete = "username";
+            }
+        }
+
+        // Actualizar cada vez que se cambie de rol
+        roles.forEach(function (rol) {
+            rol.addEventListener("change", actualizarCampoUsuario);
+        });
+        // Mostrar el texto correcto al abrir la página
+        actualizarCampoUsuario();
     </script>
 
 </body>
