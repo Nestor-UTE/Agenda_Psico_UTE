@@ -21,11 +21,11 @@
         type="button"
         class="orden-alumnos"
         id="orden-fecha"
-        data-orden="reciente"
-        aria-label="Ordenar por fecha: más recientes"
+        data-orden="proximas"
+        aria-label="Ordenar citas: próximas primero"
       >
         <i class="bi bi-arrow-down-up"></i>
-        <span id="texto-orden">Más recientes</span>
+        <span id="texto-orden">Próximas primero</span>
       </button>
 
       <button type="button" class="btn btn-azul" id="btn-nueva-cita">
@@ -111,6 +111,7 @@
             data-grupo="{{ c.grupo[-1:] }}"
             data-estado="{{ c.estatus }}"
             data-fecha="{{ c.fecha.strftime('%Y-%m-%d') if c.fecha else '' }}"
+            data-fecha-hora="{{ c.fecha.strftime('%Y-%m-%dT%H:%M:%S') if c.fecha else '' }}"
           >
             <td>
               {% if c.fecha %}
@@ -182,68 +183,83 @@
 
     <form action="{{ url_for('agendar_cita_directa') }}" method="post">
       <!-- Datos del alumno -->
-      <label for="nuevo-nombre">Nombre</label>
-      <input type="text" id="nuevo-nombre" name="nombre" required />
+      <div class="campo-cita">
+        <label for="nuevo-nombre">Nombre</label>
+        <input type="text" id="nuevo-nombre" name="nombre" required />
+      </div>
+      <div class="campo-cita">
+        <label for="nuevo-apaterno">Apellido paterno</label>
+        <input type="text" id="nuevo-apaterno" name="a_paterno" required />
+      </div>
 
-      <label for="nuevo-apaterno">Apellido paterno</label>
-      <input type="text" id="nuevo-apaterno" name="a_paterno" required />
+      <div class="campo-cita">
+        <label for="nuevo-amaterno">Apellido materno</label>
+        <input type="text" id="nuevo-amaterno" name="a_materno" required />
+      </div>
 
-      <label for="nuevo-amaterno">Apellido materno</label>
-      <input type="text" id="nuevo-amaterno" name="a_materno" required />
+      <div class="campo-cita">
+        <label for="nueva-carrera">Carrera</label>
+        <select id="nueva-carrera" name="carrera" required>
+          <option value="">Selecciona una carrera</option>
+          <option value="Mecánica">Mecánica</option>
+          <option value="Mantenimiento Industrial">
+            Mantenimiento Industrial
+          </option>
+          <option value="Educación">Educación</option>
+          <option value="Energía y Desarrollo Sostenible">
+            Energía y Desarrollo Sostenible
+          </option>
+          <option value="Negocios y Mercadotecnia">
+            Negocios y Mercadotecnia
+          </option>
+          <option value="Tecnologías de la Información e Innovación Digital">
+            Tecnologías de la Información e Innovación Digital
+          </option>
+          <option value="Logística">Logística</option>
+          <option value="Mecatrónica">Mecatrónica</option>
+        </select>
+      </div>
+      <div class="campo-cita">
+        <label for="nuevo-grado">Grado</label>
+        <select id="nuevo-grado" name="grado" required>
+          <option value="">Selecciona un grado</option>
+          {% for grado in range(1, 12) %}
+          <option value="{{ grado }}">{{ grado }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="campo-cita">
+        <label for="nuevo-grupo">Grupo</label>
+        <input
+          type="text"
+          id="nuevo-grupo"
+          name="grupo"
+          maxlength="1"
+          placeholder="Ejemplo: A"
+          required
+        />
+      </div>
+      <div class="campo-cita">
+        <label for="nueva-matricula">Matrícula del alumno</label>
+        <input
+          type="text"
+          id="nueva-matricula"
+          name="matricula"
+          placeholder="Escribe la matrícula"
+          required
+        />
+      </div>
 
-      <label for="nueva-carrera">Carrera</label>
-      <select id="nueva-carrera" name="carrera" required>
-        <option value="">Selecciona una carrera</option>
-        <option value="Mecánica">Mecánica</option>
-        <option value="Mantenimiento Industrial">
-          Mantenimiento Industrial
-        </option>
-        <option value="Educación">Educación</option>
-        <option value="Energía y Desarrollo Sostenible">
-          Energía y Desarrollo Sostenible
-        </option>
-        <option value="Negocios y Mercadotecnia">
-          Negocios y Mercadotecnia
-        </option>
-        <option value="Tecnologías de la Información e Innovación Digital">
-          Tecnologías de la Información e Innovación Digital
-        </option>
-        <option value="Logística">Logística</option>
-        <option value="Mecatrónica">Mecatrónica</option>
-      </select>
+      <div class="campo-cita">
+        <label for="nuevo-fecha">Fecha</label>
+        <input type="date" id="nuevo-fecha" name="fecha" required />
+      </div>
 
-      <label for="nuevo-grado">Grado</label>
-      <select id="nuevo-grado" name="grado" required>
-        <option value="">Selecciona un grado</option>
-        {% for grado in range(1, 12) %}
-        <option value="{{ grado }}">{{ grado }}</option>
-        {% endfor %}
-      </select>
-
-      <label for="nuevo-grupo">Grupo</label>
-      <input
-        type="text"
-        id="nuevo-grupo"
-        name="grupo"
-        maxlength="1"
-        placeholder="Ejemplo: A"
-        required
-      />
-      <label for="nueva-matricula">Matrícula del alumno</label>
-      <input
-        type="text"
-        id="nueva-matricula"
-        name="matricula"
-        placeholder="Escribe la matrícula"
-        required
-      />
-
-      <label for="nueva-fecha">Fecha</label>
-      <input type="date" id="nueva-fecha" name="fecha" required />
-
-      <label for="nueva-hora">Hora</label>
-      <input type="time" id="nueva-hora" name="hora" required />
-
+      <div class="campo-cita">
+        <label for="nuevo-hora">Hora</label>
+        <input type="time" id="nuevo-hora" name="hora" required />
+      </div>
+      <div class="campo-cita">
       <label for="nuevo-motivo">Motivo</label>
       <textarea
         id="nuevo-motivo"
@@ -253,6 +269,7 @@
         maxlength="255"
         required
       ></textarea>
+      </div>
 
       <div class="modal-botones">
         <button type="button" class="btn btn-gris" id="btn-cancelar-nueva">
@@ -406,7 +423,7 @@
   const modalNuevaCita = document.getElementById("modal-nueva-cita");
   const botonNuevaCita = document.getElementById("btn-nueva-cita");
   const cancelarNuevaCita = document.getElementById("btn-cancelar-nueva");
-  const fechaNuevaCita = document.getElementById("nueva-fecha");
+  const fechaNuevaCita = document.getElementById("nuevo-fecha");
 
   // Obtener la fecha local para evitar seleccionar días anteriores
   const hoy = new Date();

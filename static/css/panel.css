@@ -1290,3 +1290,116 @@ a.btn {
 .resumen-item .cita-resumen-fecha .hora-etiqueta i {
     font-size: 17px;
 }
+
+/* Desplegables del formulario Agendar nueva cita */
+#modal-nueva-cita select {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+
+    border: 1px solid #c9d3e3;
+    border-radius: 999px;
+    background-color: #f3f5f9;
+
+    color: #374151;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Resaltar el campo seleccionado */
+#modal-nueva-cita select:focus {
+    border-color: #6a9fdc;
+    background-color: #ffffff;
+    outline: 2px solid #6a9fdc;
+    outline-offset: 2px;
+}
+
+/* Menús desplegables compactos */
+@supports (appearance: base-select) {
+
+    #modal-nueva-cita select,
+    #modal-nueva-cita select::picker(select) {
+        appearance: base-select;
+    }
+
+    #modal-nueva-cita select::picker(select) {
+        max-height: 220px;
+        overflow-y: auto;
+
+        background: #ffffff;
+        border: 1px solid #c9d3e3;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    #modal-nueva-cita select option {
+        padding: 10px 12px;
+        font-size: 14px;
+        color: #374151;
+        white-space: normal;
+    }
+
+    #modal-nueva-cita select option:hover {
+        background-color: #e8f3f2;
+    }
+}
+
+/* ===== Formulario compacto para agendar cita ===== */
+#modal-nueva-cita .modal {
+    width: min(740px, calc(100vw - 32px));
+    max-width: 740px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+}
+
+/* Organizar los campos en dos columnas */
+#modal-nueva-cita form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 18px;
+}
+
+/* Mantener cada etiqueta junto a su campo */
+#modal-nueva-cita .campo-cita {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+#modal-nueva-cita .campo-cita label {
+    margin: 0;
+}
+
+#modal-nueva-cita .campo-cita input,
+#modal-nueva-cita .campo-cita select,
+#modal-nueva-cita .campo-cita textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin-bottom: 0;
+}
+
+/* Matrícula y Motivo ocupan las dos columnas */
+#modal-nueva-cita .campo-cita:nth-child(7),
+#modal-nueva-cita .campo-cita:nth-child(10),
+#modal-nueva-cita .modal-botones {
+    grid-column: 1 / -1;
+}
+
+/* En celulares, mostrar una sola columna */
+@media (max-width: 640px) {
+    #modal-nueva-cita form {
+        grid-template-columns: 1fr;
+    }
+}
+/* Mantener la flecha de los desplegables a la derecha */
+#modal-nueva-cita select {
+    appearance: auto;
+    min-height: 40px;
+    height: 40px;
+    padding: 0 12px;
+}

@@ -100,21 +100,39 @@ function iniciarFiltros(configuracion) {
         }
     }
 
-    // Ordenar registros por fecha
+    // Ordenar registros por fecha y hora de la cita
     function ordenarRegistros() {
         if (!ordenFecha) return;
 
         const direccion = ordenFecha.dataset.orden;
 
         filas.sort(function (a, b) {
-            const fechaA = a.dataset.fecha || "";
-            const fechaB = b.dataset.fecha || "";
+            const fechaA = a.dataset.fechaHora || a.dataset.fecha || "";
+            const fechaB = b.dataset.fechaHora || b.dataset.fecha || "";
 
             // Los registros sin fecha quedan al final
             if (!fechaA && !fechaB) return 0;
             if (!fechaA) return 1;
             if (!fechaB) return -1;
 
+            // En Agenda, mostrar primero las citas futuras
+            if (direccion === "proximas" || direccion === "lejanas") {
+                const ahora = new Date();
+
+                const pasadaA = new Date(fechaA) < ahora;
+                const pasadaB = new Date(fechaB) < ahora;
+
+                // Las citas pasadas siempre quedan al final
+                if (pasadaA !== pasadaB) {
+                    return pasadaA ? 1 : -1;
+                }
+
+                return direccion === "proximas"
+                    ? fechaA.localeCompare(fechaB)
+                    : fechaB.localeCompare(fechaA);
+            }
+
+            // Conservar el ordenamiento de las otras pantallas
             return direccion === "reciente"
                 ? fechaB.localeCompare(fechaA)
                 : fechaA.localeCompare(fechaB);
@@ -124,7 +142,6 @@ function iniciarFiltros(configuracion) {
             tabla.appendChild(fila);
         });
     }
-
 
     // Activar filtros mientras el usuario escribe
     [buscador, filtroGrupo].forEach(function (campo) {
@@ -142,23 +159,42 @@ function iniciarFiltros(configuracion) {
         }
     );
 
-
-    // Alternar entre más recientes y más antiguos
+    // Alternar el orden sin afectar las otras pantallas
     if (ordenFecha) {
         ordenFecha.addEventListener("click", function () {
-            const nuevoOrden =
-                ordenFecha.dataset.orden === "reciente"
+            const ordenActual = ordenFecha.dataset.orden;
+
+            // Identificar si estamos en Agenda / Cita
+            const esAgenda =
+                ordenActual === "proximas" ||
+                ordenActual === "lejanas";
+
+            let nuevoOrden;
+            let texto;
+
+            if (esAgenda) {
+                nuevoOrden = ordenActual === "proximas"
+                    ? "lejanas"
+                    : "proximas";
+
+                texto = nuevoOrden === "proximas"
+                    ? "Próximas primero"
+                    : "Más lejanas primero";
+            } else {
+                // Mantener el comportamiento de otras pantallas
+                nuevoOrden = ordenActual === "reciente"
                     ? "antiguo"
                     : "reciente";
 
-            ordenFecha.dataset.orden = nuevoOrden;
-
-            const texto =
-                nuevoOrden === "reciente"
+                texto = nuevoOrden === "reciente"
                     ? "Más recientes"
                     : "Más antiguos";
+            }
 
-            const textoOrden = ordenFecha.querySelector("#texto-orden");
+            ordenFecha.dataset.orden = nuevoOrden;
+
+            const textoOrden =
+                ordenFecha.querySelector("#texto-orden");
 
             if (textoOrden) {
                 textoOrden.textContent = texto;
@@ -166,13 +202,14 @@ function iniciarFiltros(configuracion) {
 
             ordenFecha.setAttribute(
                 "aria-label",
-                "Ordenar por fecha: " + texto.toLowerCase()
+                esAgenda
+                    ? "Ordenar citas: " + texto.toLowerCase()
+                    : "Ordenar por fecha: " + texto.toLowerCase()
             );
 
             ordenarRegistros();
         });
     }
-
 
     // Mostrar la X cuando se seleccione una fecha
     if (filtroFecha && limpiarFecha) {
