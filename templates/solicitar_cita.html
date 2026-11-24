@@ -58,19 +58,32 @@
           Ingresa la matrícula del alumno.
         </small>
       </div>
+ 
+<div>
+    <label for="carrera">Carrera</label>
 
-      <div>
-        <label for="carrera">Carrera</label>
-        <input
-          type="text"
-          id="carrera"
-          name="carrera"
-          maxlength="45"
-          placeholder="Ej. TIC"
-          value="{{ datos.get('carrera', '') }}"
-          required
-        />
-      </div>
+    <select id="carrera" name="carrera" required>
+        <option value="">Selecciona una carrera</option>
+
+        {% set carreras = [
+            'Mecánica',
+            'Mantenimiento Industrial',
+            'Educación',
+            'Energía y Desarrollo Sostenible',
+            'Negocios y Mercadotecnia',
+            'Tecnologías de la Información e Innovación Digital',
+            'Logística',
+            'Mecatrónica'
+        ] %}
+
+        {% for carrera in carreras %}
+        <option value="{{ carrera }}"
+            {% if datos.get('carrera', '') == carrera %}selected{% endif %}>
+            {{ carrera }}
+        </option>
+        {% endfor %}
+    </select>
+</div>
 
       <div>
         <label for="grado">Cuatrimestre</label>
